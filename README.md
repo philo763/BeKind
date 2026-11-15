@@ -8,12 +8,16 @@ Be Kind propose une activité qui fait du bien selon les quatre hormones du bonh
 
 ## Ce que contient l'appli
 
-- **Ma suggestion** : propose une activité (scores par activité et par hormone).
+- **Hacker mon cerveau** : propose une activité (scores par activité et par hormone).
+  Oui : +1, Mouais : 0, Pas du tout envie : −1, Je ne veux plus cette suggestion : −10.
 - **Mon jardin** : une marguerite par activité validée, déplaçable ; les soleils
   gagnés s'échangent dans la boutique contre une danse.
-- **Base de données** : activités, scores, emojis, balises, filtres, tri A→Z et
-  assistant de suggestions d'ajout.
-- **Ligne du temps**, **Gratitude**, **Self love**, **To do list**.
+- **Journaling** : carnets (gratitude, self love…), ligne du temps et to do list.
+- **Hormones du bonheur** : carte mentale des 4 hormones, de leurs rôles et des activités liées.
+- **Base de données** : base fixe, la même pour tout le monde (`FIXE` dans `src/data.js`),
+  en lecture seule, plus les activités ajoutées à la main, qui partent avec le meilleur score.
+  Les activités désactivées s'y réactivent, en dehors d'un tirage en cours.
+- **Paramètres** : mes données (sauvegardes) et apparence (clair, sombre ou automatique).
 
 ## Structure
 

@@ -2,7 +2,7 @@
    compteur de version pour que React sache quand redessiner. */
 import { useSyncExternalStore } from "react";
 import { BK } from "./storage.js";
-import { fresh, BASE, SUBS, LINK, LINK_ANCIEN, MANUELS, JR_KEYS, gardenH } from "./data.js";
+import { fresh, BASE, FIXE, SUBS, LINK, LINK_ANCIEN, MANUELS, JR_KEYS, gardenH } from "./data.js";
 
 function charger() {
   let S = BK.charger();
@@ -31,9 +31,17 @@ function charger() {
     if (a.k && a.g !== "onglet") { a.g = "onglet"; ch = true; }
     if (!a.k && MANUELS.includes(a.n) && a.g === "base") { a.g = "manuel"; ch = true; }
   });
-  /* activités ajoutées après coup à la base de départ */
-  BASE.filter((b) => b[3] === "floreal").forEach(([e, n, h, k]) => {
-    if (!S.acts.some((a) => a.n === n)) { S.acts.push({ id: S.next++, n, h: h.slice(), s: 0, e, g: "onglet", k }); ch = true; }
+  /* hormones ajoutées après coup à une activité de départ (les activités ne se modifient plus dans l'appli) */
+  const AJOUTS_H = { "me masser les mains ou les épaules avec une crème": 3 };
+  S.acts.forEach((a) => {
+    const h = AJOUTS_H[a.n.toLowerCase().replace(/'/g, "’")];
+    if (h !== undefined && !a.h.includes(h)) { a.h.push(h); a.h.sort(); ch = true; }
+  });
+  /* base fixe : chaque activité qui manque (ajoutée depuis) est ajoutée avec un score de 0 */
+  const nom = (n) => n.toLowerCase().replace(/'/g, "’").trim();
+  const deja = new Set(S.acts.map((a) => nom(a.n)));
+  FIXE.forEach((f) => {
+    if (!deja.has(nom(f.n))) { S.acts.push({ ...f, id: S.next++, h: f.h.slice(), s: 0 }); ch = true; }
   });
   if (!Array.isArray(S.garden)) {
     S.garden = [];

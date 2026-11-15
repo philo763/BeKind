@@ -34,7 +34,6 @@ export const BASE=[
 ["☕", "Me faire un café", [0]],
 ["🎯", "Faire mon Habibit du jour", [0], "habibits"],
 ["🌸", "Faire une entrée dans Floreal Fitness Tracker", [0, 3], "floreal"],
-["🚿", "Me doucher", [0]],
 ["🛏️", "Faire le lit et aérer la pièce", [0]],
 ["🛁", "Prendre un bain", [0]],
 ["🍵", "Me préparer un thé que j’aime et le savourer sans écran", [0]],
@@ -52,26 +51,26 @@ export const BASE=[
 ["🗂️", "Ranger mon bureau", [0]],
 ["💧", "Boire un grand verre d’eau", [0, 2]],
 ["📸", "Prendre en photo quelque chose de beau autour de moi", [0, 2], "bel"],
-["👗", "Enlever mon jogging et m’habiller comme si je sortais", [0]],
+["🚿", "Me doucher et m’habiller comme si je sortais", [0]],
 ["🛍️", "Aller faire du shopping", [0]],
 ["📞", "Appeler un proche", [1]],
 ["💌", "Envoyer un message à quelqu’un à qui je pense", [1]],
 ["👯", "Proposer un café ou une balade à une amie", [1]],
 ["🛍️", "Aller dans un lieu avec du monde (café, marché)", [1]],
 ["🛋️", "Me blottir sous un plaid avec une boisson chaude", [1]],
-["🛀", "Prendre un bain chaud", [1]],
+["🛀", "Prendre une douche ou un bain chaud", [1]],
 ["🎧", "Écouter une musique douce et réconfortante", [1]],
-["💆", "Me masser les mains ou les épaules avec une crème", [1]],
-["✍️", "Laisser un post-it gentil à quelqu’un", [1]],
+["💆", "Me masser les mains ou les épaules avec une crème", [1, 3]],
+["✍️", "Écrire un petit mot gentil à quelqu’un", [1]],
 ["🖼️", "Regarder de belles photos ou d’anciens messages tendres", [1]],
-["🤗", "Faire un câlin à quelqu’un", [1], "cal"],
-["🙏", "Féliciter quelqu’un", [1]],
+["🤗", "Faire un câlin à quelqu’un (20 secondes minimum)", [1], "cal"],
+["🙏", "Remercier ou féliciter quelqu’un", [1]],
 ["💖", "Écrire 3 choses que j’apprécie chez moi", [1], "sl"],
 ["💌", "Écrire une lettre à moi-même pour dans un an", [1, 2]],
 ["💬", "Envoyer un compliment sincère à quelqu’un", [1]],
 ["🧦", "Mettre des chaussettes bien douillettes", [1]],
-["😊", "Remercier quelqu’un", [1]],
-["🌬️", "Faire de la cohérence cardiaque", [2]],
+["🌬️", "Faire une respiration profonde / cohérence cardiaque (5 min)", [2]],
+["🧘", "Méditer (10 min minimum)", [2]],
 ["🎶", "Écouter de la musique calme les yeux fermés", [2]],
 ["🙆", "Faire des étirements lents", [2]],
 ["📓", "Noter dans un carnet ce qui me pèse et ce qui va bien", [2], "car"],
@@ -80,7 +79,7 @@ export const BASE=[
 ["🌳", "Aller dans un parc ou en forêt", [2]],
 ["☀️", "M’asseoir au soleil quelques minutes", [2]],
 ["🌱", "Marcher pieds nus dans l’herbe", [2]],
-["☁️", "Observer le ciel (sans téléphone)", [2]],
+["☁️", "Observer le ciel et la nature sans téléphone", [2]],
 ["📷", "Photographier trois belles choses dehors", [2, 0]],
 ["🖍️", "Colorier un mandala", [2, 0]],
 ["💿", "Écouter un album en entier sans rien faire d’autre", [2]],
@@ -93,22 +92,27 @@ export const BASE=[
 ["🎬", "Regarder un film ou un sketch drôle", [3]],
 ["🎤", "Faire du karaoke", [3]],
 ["😂", "Appeler quelqu’un qui me fait rire", [3]],
-["🚿", "Chanter sous la douche", [3]]
+["🎤", "Chanter à tue-tête", [3]],
+["🐾", "Regarder des vidéos d’animaux", [3]],
+["🎲", "Jouer à un jeu qui me fait rire", [3]]
 ];
 export const SUGG=[
-["yoga", "🤸", "Faire une séance de yoga", [0]],
+["yoga", "🤸", "Faire une courte séance de yoga ou de sport", [0]],
 ["chien", "🎾", "Jouer avec mon chien", [1]],
 ["chien", "🐶", "Faire un câlin à mon chien", [1]],
-["meditation", "🧘", "Méditer", [2]],
 ["yoga", "🧘‍♀️", "Faire du yoga doux", [2]],
 ["marche", "🚶", "Marcher dehors (20 min minimum)", [2]],
-["course", "🏃", "Aller courir 20 min", [2]],
+["course", "🏃", "Courir doucement (20 min minimum)", [2]],
+["course", "🏃‍♀️", "Courir (20 min minimum)", [3]],
 ["chien", "🐕", "Faire une promenade avec mon chien", [2]],
 ["yoga", "💪", "Faire une séance de pilates", [3]],
 ["marche", "👟", "Faire une marche rapide", [3]],
 ["muscu", "🏋️", "Faire une séance de renforcement musculaire", [3]],
+["muscu", "⏱️", "Faire un entraînement court et intense (15 min)", [3]],
 ["velo", "🚴", "Faire du vélo", [3]],
 ["danse", "🪩", "Faire une vidéo tuto de danse", [3]],
+["danse", "💃", "Danser comme si personne ne regardait", [3]],
+["danse", "🎶", "Faire une grosse séance de danse", [3]],
 ["chien", "🦴", "Cacher des friandises dans la maison pour mon chien", [1, 0]],
 ["chien", "🪮", "Brosser mon chien tout doucement", [1]],
 ["chien", "🎓", "Apprendre un nouveau tour à mon chien", [0, 1]],
@@ -124,7 +128,6 @@ export const SUGG=[
 ["yoga", "🌳", "Tenir la posture de l’arbre 1 minute de chaque côté", [2, 0]],
 ["yoga", "🔥", "Faire un flow de yoga dynamique de 15 minutes", [3, 0]],
 ["yoga", "😌", "Finir par 5 minutes de savasana", [2]],
-["course", "🏃", "Faire un footing de 15 minutes", [3]],
 ["course", "⚡", "Faire des fractionnés : 6 fois 1 minute rapide", [3, 0]],
 ["course", "🗺️", "Courir sur un parcours que je ne connais pas", [3, 0]],
 ["course", "🎧", "Courir en musique sans regarder ma montre", [3]],
@@ -140,15 +143,13 @@ export const SUGG=[
 ["muscu", "🦵", "Faire 3 séries de squats", [3, 0]],
 ["muscu", "💪", "Tenir la planche pendant 1 minute", [0, 3]],
 ["muscu", "🧱", "Faire 10 minutes de gainage", [0, 3]],
-["muscu", "🤸", "Faire une mini séance de pilates", [2, 3]],
 ["muscu", "🏋️", "Faire quelques pompes, même sur les genoux", [0, 3]],
-["marche", "🚶", "Faire une marche de 30 minutes sans écouteurs", [2]],
 ["marche", "⛰️", "Marcher jusqu’à un endroit avec une jolie vue", [2, 0]],
 ["marche", "🍂", "Ramasser une jolie feuille ou un caillou en chemin", [2, 0]],
 ["marche", "🎧", "Faire une marche rapide en musique", [3, 2]]
 ];
 export const MANUELS=["Importer des photos sur Immich", "Coder sur Habibit"];
-export const LINK={"Faire une tâche de ma to-do list": "todo", "Faire mon Habibit du jour": "habibits", "Noter mes petites victoires de la semaine": "vic", "Faire un câlin à quelqu’un": "cal", "Écrire 3 choses que j’apprécie chez moi": "sl", "Noter dans un carnet ce qui me pèse et ce qui va bien": "car", "Faire une liste de 3 gratitudes": "gr", "Choisir un mot pour guider ma journée": "mot", "Écrire ce que je ressens, sans me juger": "res", "Prendre en photo quelque chose de beau autour de moi": "bel"};
+export const LINK={"Faire une tâche de ma to-do list": "todo", "Faire mon Habibit du jour": "habibits", "Noter mes petites victoires de la semaine": "vic", "Faire un câlin à quelqu’un (20 secondes minimum)": "cal", "Écrire 3 choses que j’apprécie chez moi": "sl", "Noter dans un carnet ce qui me pèse et ce qui va bien": "car", "Faire une liste de 3 gratitudes": "gr", "Choisir un mot pour guider ma journée": "mot", "Écrire ce que je ressens, sans me juger": "res", "Prendre en photo quelque chose de beau autour de moi": "bel"};
 
 /* Ancien nom d'une activité liée (pour reconnaître les données déjà enregistrées) */
 export const LINK_ANCIEN={"Faire un câlin à quelqu’un (20 secondes minimum)":"cal"};
@@ -163,9 +164,15 @@ export const LIEN_BTN={
   res:"💭 Ouvrir mes ressentis",bel:"📸 Ouvrir mes belles choses",
 };
 
+/* Base fixe, la même pour tout le monde : base de départ + activités sport et animaux.
+   Seules les activités ajoutées à la main (balise « manuel ») sont propres à chacun. */
+export const FIXE=[
+  ...BASE.map(([e,n,h,k])=>(k?{e,n,h,g:"onglet",k}:{e,n,h,g:"base"})),
+  ...SUGG.map(([sg,e,n,h])=>({e,n,h,g:subCat(sg),sg})),
+];
 export function fresh(){
   let id=1;
-  const acts=BASE.map(([e,n,h,k])=>{const a={id:id++,n,h:h.slice(),s:0,e,g:k?"onglet":"base"};if(k)a.k=k;return a});
+  const acts=FIXE.map((f)=>({...f,id:id++,h:f.h.slice(),s:0}));
   return{v:1,next:id,acts,hs:[0,0,0,0],tl:[],todo:[]};
 }
 
