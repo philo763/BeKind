@@ -2,7 +2,9 @@ import { useState } from "react";
 import { S, commit } from "./store.js";
 import { Tick } from "./ui.jsx";
 
-export default function Todo() {
+const Wrap = ({ compact, children }) => (compact ? <div style={{ textAlign: "left" }}>{children}</div> : <section style={{ background: "var(--c1)" }}>{children}</section>);
+
+export default function Todo({ compact }) {
   const [draft, setDraft] = useState("");
   const open = S.todo.filter((t) => !t.d).length;
   const add = () => {
@@ -10,8 +12,8 @@ export default function Todo() {
     S.todo.push({ id: S.next++, t: v, d: false }); setDraft(""); commit();
   };
   return (
-    <section style={{ background: "var(--c1)" }}>
-      <h2><span className="ico">✅</span><span>To do list</span><span className="sn">{S.todo.length ? open + " à faire" : ""}</span></h2>
+    <Wrap compact={compact}>
+      {!compact && <h2><span className="ico">✅</span><span>To do list</span><span className="sn">{S.todo.length ? open + " à faire" : ""}</span></h2>}
       {!S.todo.length && <p className="mu">Rien à faire pour l’instant. Profites-en ! 🌿</p>}
       <ul>
         {S.todo.map((t) => (
@@ -30,6 +32,6 @@ export default function Todo() {
         <button type="button" onClick={add}>Ajouter</button>
       </div>
       {S.todo.some((t) => t.d) && <div className="foot"><button type="button" className="reset" onClick={() => { S.todo = S.todo.filter((k) => !k.d); commit(); }}>Effacer les terminées</button></div>}
-    </section>
+    </Wrap>
   );
 }

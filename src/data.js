@@ -33,6 +33,7 @@ export const BASE=[
 ["📧", "Trier mes mails", [0]],
 ["☕", "Me faire un café", [0]],
 ["🎯", "Faire mon Habibit du jour", [0], "habibits"],
+["🌸", "Faire une entrée dans Floreal Fitness Tracker", [0, 3], "floreal"],
 ["🚿", "Me doucher", [0]],
 ["🛏️", "Faire le lit et aérer la pièce", [0]],
 ["🛁", "Prendre un bain", [0]],
@@ -151,11 +152,12 @@ export const LINK={"Faire une tâche de ma to-do list": "todo", "Faire mon Habib
 
 /* Ancien nom d'une activité liée (pour reconnaître les données déjà enregistrées) */
 export const LINK_ANCIEN={"Faire un câlin à quelqu’un (20 secondes minimum)":"cal"};
-export const MANUEL_ANCIEN=MANUELS;
 
 /* Onglets liés : texte du bouton sur l'écran « Vas-y » */
 export const HABIBITS_URL="https://philo763.github.io/Habibits/";
+export const FLOREAL_URL="https://splendorous-axolotl-8382a7.netlify.app/";
 export const LIEN_BTN={
+  floreal:"🌸 Ouvrir Floreal Fitness Tracker",
   todo:"✅ Ouvrir ma to-do list",habibits:"🎯 Ouvrir Habibits",gr:"🙏 Ouvrir mon journal de gratitude",sl:"💖 Ouvrir mon self love",
   vic:"🏆 Ouvrir mes petites victoires",cal:"🤗 Ouvrir mes câlins",car:"📓 Ouvrir mon carnet",mot:"🔑 Ouvrir mon mot du jour",
   res:"💭 Ouvrir mes ressentis",bel:"📸 Ouvrir mes belles choses",

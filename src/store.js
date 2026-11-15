@@ -31,6 +31,10 @@ function charger() {
     if (a.k && a.g !== "onglet") { a.g = "onglet"; ch = true; }
     if (!a.k && MANUELS.includes(a.n) && a.g === "base") { a.g = "manuel"; ch = true; }
   });
+  /* activités ajoutées après coup à la base de départ */
+  BASE.filter((b) => b[3] === "floreal").forEach(([e, n, h, k]) => {
+    if (!S.acts.some((a) => a.n === n)) { S.acts.push({ id: S.next++, n, h: h.slice(), s: 0, e, g: "onglet", k }); ch = true; }
+  });
   if (!Array.isArray(S.garden)) {
     S.garden = [];
     S.tl.forEach((v) => addFlowerTo(S, { n: v.n, e: v.e, h: v.h }, v.t));

@@ -1,5 +1,9 @@
-import { CN, emo, HABIBITS_URL, LIEN_BTN } from "./data.js";
+import { CN, FLOREAL_URL, HABIBITS_URL, JR, LIEN_BTN, emo } from "./data.js";
 import { S, addFlower, commit } from "./store.js";
+import { LinesInput, saveDraft } from "./Journal.jsx";
+import Todo from "./Todo.jsx";
+
+const EXTERNES = { habibits: HABIBITS_URL, floreal: FLOREAL_URL };
 
 /* ---------- logique de suggestion (état de session géré par App) ---------- */
 export const newSess = (msg) => ({ ph: "idle", excl: [], seen: [], cur: null, hor: null, tied: [], msg: msg || "" });
@@ -22,7 +26,7 @@ export function propose(s, h) {
   s.cur = a; s.hor = h; s.seen.push(a.id); s.ph = "propose";
 }
 
-export default function Home({ sess, setSess, goJournal }) {
+export default function Home({ sess, setSess }) {
   const c = sess.cur;
   /* on mute une copie de la session puis on la republie */
   const act = (fn) => { const s = { ...sess, excl: sess.excl.slice(), seen: sess.seen.slice() }; fn(s); setSess(s); };
@@ -48,22 +52,39 @@ export default function Home({ sess, setSess, goJournal }) {
       </div>
     </section>
   );
-  if (sess.ph === "propose") return (
-    <section className="card" style={{ background: `var(--h${sess.hor})` }}>
-      <div className="bigemo" aria-hidden="true">{emo(c)}</div>
-      <p className="kicker">Ma suggestion</p>
-      <p className="act">{c.n}</p>
-      <div className="answers">
-        <button type="button" className="main" autoFocus onClick={() => act((s) => {
-          c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
-          S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
-          commit(); s.ph = "yes";
-        })}>Oui, je fais ça</button>
-        <button type="button" className="reset" onClick={() => act((s) => propose(s, s.hor))}>Mouais…</button>
-        <button type="button" className="reset" onClick={() => act((s) => { s.excl.push(s.hor); decide(s); })}>Pas du tout envie</button>
-      </div>
-    </section>
-  );
+  if (sess.ph === "propose") {
+    const valider = () => act((s) => {
+      if (link && JR[link] && !saveDraft(link)) { s.err = "Écris au moins une ligne pour valider ton activité."; return; }
+      c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
+      S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
+      commit();
+      if (link) { Object.assign(s, newSess("Bravo, une activité de plus pour prendre soin de toi 🌼")); s.err = ""; } else s.ph = "yes";
+    });
+    return (
+      <section className="card" style={{ background: `var(--h${sess.hor})` }}>
+        <div className="bigemo" aria-hidden="true">{emo(c)}</div>
+        <p className="kicker">Ma suggestion</p>
+        <p className="act">{c.n}</p>
+        {link && JR[link] && (
+          <div className="page embed">
+            <LinesInput k={link} onEnter={valider} />
+            {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}
+          </div>
+        )}
+        {link === "todo" && <div className="embed"><Todo compact /></div>}
+        {EXTERNES[link] && (
+          <div style={{ marginBottom: 14 }}>
+            <a className="reset" href={EXTERNES[link]} target="_blank" rel="noreferrer">{LIEN_BTN[link]}</a>
+          </div>
+        )}
+        <div className="answers">
+          <button type="button" className="main" onClick={valider}>Oui, je fais ça</button>
+          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; propose(s, s.hor); })}>Mouais…</button>
+          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; s.excl.push(s.hor); decide(s); })}>Pas du tout envie</button>
+        </div>
+      </section>
+    );
+  }
   if (sess.ph === "yes") return (
     <section className="card" style={{ background: `var(--h${sess.hor})` }}>
       <div className="bigemo" aria-hidden="true">{emo(c)}</div>
@@ -71,13 +92,6 @@ export default function Home({ sess, setSess, goJournal }) {
       <p className="act">{c.n}</p>
       <p>Vas-y, tu vas te faire du bien 🌼</p>
       <p className="mu" style={{ fontSize: 14, marginTop: -6 }}>+1 ☀️ et une nouvelle marguerite dans ton jardin</p>
-      {link && (
-        <div style={{ marginBottom: 14 }}>
-          {link === "habibits"
-            ? <a className="reset" href={HABIBITS_URL} target="_blank" rel="noreferrer">{LIEN_BTN.habibits}</a>
-            : <button type="button" className="reset" onClick={() => goJournal(link)}>{LIEN_BTN[link]}</button>}
-        </div>
-      )}
       <button type="button" className="main" autoFocus onClick={() => setSess(newSess("Bravo, une activité de plus pour prendre soin de toi 🌼"))}>C’est fait ✓</button>
     </section>
   );

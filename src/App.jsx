@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "./store.js";
 import Home, { newSess } from "./Home.jsx";
 import Garden from "./Garden.jsx";
@@ -6,12 +6,14 @@ import Database from "./Database.jsx";
 import Timeline from "./Timeline.jsx";
 import Journaling from "./Journaling.jsx";
 import Todo from "./Todo.jsx";
-import Donnees, { Bandeau, Indicateur } from "./Donnees.jsx";
+import { Bandeau, Indicateur } from "./Donnees.jsx";
+import Parametres from "./Parametres.jsx";
+import Apropos from "./Apropos.jsx";
 
-const ROWS = [
-  [["home", "Ma suggestion"], ["garden", "Mon jardin"], ["db", "Base de données"], ["tl", "Ligne du temps"]],
-  [["jrn", "Journaling"], ["todo", "To do list"], ["data", "Mes données"]],
-];
+/* Entrées du volet : [code, libellé, emoji]. Paramètres et À propos sont tout en bas. */
+const HAUT = [["home", "Ma suggestion", "🌼"], ["garden", "Mon jardin", "🌷"], ["db", "Base de données", "📋"], ["tl", "Ligne du temps", "🕰️"], ["jrn", "Journaling", "📓"], ["todo", "To do list", "✅"]];
+const BAS = [["settings", "Paramètres", "⚙️"], ["about", "À propos", "💛"]];
+const TITRES = Object.fromEntries([...HAUT, ...BAS].map(([k, l]) => [k, l]));
 
 function Header() {
   const petals = Array.from({ length: 12 }, (_, i) => (
@@ -41,31 +43,52 @@ function Header() {
 export default function App() {
   useStore(); // redessine quand les données ou la sauvegarde changent
   const [tab, setTab] = useState("home");
+  const [open, setOpen] = useState(false);
   const [sub, setSub] = useState("gr");
-  const goJournal = (k) => { if (k === "todo") setTab("todo"); else { setSub(k); setTab("jrn"); } };
   const [sess, setSess] = useState(() => newSess());
+  useEffect(() => {
+    const k = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, []);
+  const aller = (k) => { setTab(k); setOpen(false); window.scrollTo({ top: 0 }); };
+  const entree = ([k, l, e]) => (
+    <button key={k} type="button" role="tab" className="dnav" aria-selected={tab === k ? "true" : "false"} onClick={() => aller(k)}>
+      <span aria-hidden="true">{e}</span>{l}
+    </button>
+  );
   return (
     <main>
       <Header />
-      <Indicateur onClick={() => setTab("data")} />
+      <div className="topbar">
+        <button type="button" className="burger" aria-label="Ouvrir le menu" aria-expanded={open ? "true" : "false"} aria-controls="volet" onClick={() => setOpen(true)}>☰</button>
+        <h2 className="ttl">{TITRES[tab]}</h2>
+      </div>
+      <Indicateur onClick={() => aller("settings")} />
       <Bandeau />
-      <nav className="tabs" role="tablist" aria-label="Sections">
-        {ROWS.map((row, i) => (
-          <div className="trow2" role="presentation" key={i}>
-            {row.map(([k, l]) => (
-              <button key={k} className="tab" role="tab" type="button" aria-selected={tab === k ? "true" : "false"} onClick={() => setTab(k)}>{l}</button>
-            ))}
-          </div>
-        ))}
-      </nav>
+
+      <div className={"scrim" + (open ? " on" : "")} onClick={() => setOpen(false)} aria-hidden="true" />
+      <aside id="volet" className={"drawer" + (open ? " open" : "")} inert={!open} aria-label="Menu">
+        <div className="dhead">
+          <strong>Be Kind</strong>
+          <button type="button" className="burger" aria-label="Fermer le menu" onClick={() => setOpen(false)}>×</button>
+        </div>
+        <nav className="dlist" role="tablist" aria-label="Sections" aria-orientation="vertical">
+          {HAUT.map(entree)}
+          <div className="dgrow" />
+          {BAS.map(entree)}
+        </nav>
+      </aside>
+
       <div id="view" role="tabpanel">
-        {tab === "home" && <Home sess={sess} setSess={setSess} goJournal={goJournal} />}
+        {tab === "home" && <Home sess={sess} setSess={setSess} />}
         {tab === "garden" && <Garden />}
         {tab === "db" && <Database />}
         {tab === "tl" && <Timeline />}
         {tab === "jrn" && <Journaling sub={sub} setSub={setSub} />}
         {tab === "todo" && <Todo />}
-        {tab === "data" && <Donnees />}
+        {tab === "settings" && <Parametres />}
+        {tab === "about" && <Apropos />}
       </div>
     </main>
   );

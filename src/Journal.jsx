@@ -3,7 +3,8 @@ import { JR } from "./data.js";
 import { S, commit, pagesDe, definirPages } from "./store.js";
 import { cap } from "./ui.jsx";
 
-const drafts = {}; // gardés quand on change d'onglet
+const drafts = {};
+const draftOf = (k) => (drafts[k] ||= ["", "", ""]); // gardés quand on change d'onglet
 const pickRem = (k) => {
   const all = pagesDe(k).flatMap((p) => p.items);
   return all.length ? all[Math.floor(Math.random() * all.length)] : null;
@@ -11,26 +12,48 @@ const pickRem = (k) => {
 const dateLong = (t, withYear) => cap(new Date(t).toLocaleDateString("fr-FR",
   { weekday: "long", day: "numeric", month: "long", ...(withYear ? { year: "numeric" } : {}) }));
 
-export default function Journal({ k }) {
-  const c = JR[k], L = pagesDe(k);
-  if (!drafts[k]) drafts[k] = ["", "", ""];
-  const [, setTick] = useState(0);
-  const [msg, setMsg] = useState("");
-  const [arm, setArm] = useState("");
-  const [rem, setRem] = useState(() => pickRem(k));
-  const d = drafts[k];
+/* Enregistre le brouillon comme une nouvelle page. Renvoie false si tout est vide. */
+export function saveDraft(k) {
+  const it = draftOf(k).map((s) => s.trim()).filter(Boolean);
+  if (!it.length) return false;
+  pagesDe(k).push({ id: S.next++, t: Date.now(), items: it });
+  drafts[k] = ["", "", ""];
+  return true;
+}
 
-  const save = () => {
-    const it = d.map((s) => s.trim()).filter(Boolean);
-    if (!it.length) { setMsg("Écris au moins une ligne pour enregistrer ta page."); return; }
-    pagesDe(k).push({ id: S.next++, t: Date.now(), items: it });
-    drafts[k] = ["", "", ""]; setMsg(c.ok); setRem(pickRem(k)); commit();
-  };
+/* Les 3 lignes d'une page (utilisées dans l'onglet et sous la suggestion) */
+export function LinesInput({ k, onEnter }) {
+  const c = JR[k], d = draftOf(k);
+  const [, setTick] = useState(0);
   const keydown = (e, i) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
     if (i < 2) e.currentTarget.parentNode.parentNode.querySelectorAll(".ln")[i + 1]?.focus();
-    else save();
+    else onEnter?.();
+  };
+  return (
+    <>
+      <div className="pdate">{dateLong(Date.now())}</div>
+      {[0, 1, 2].map((i) => (
+        <div className="line" key={i}>
+          <span className="num" aria-hidden="true">{i + 1}</span>
+          <input className="ln" placeholder={c.ph[i]} aria-label={`${c.title}, ligne ${i + 1}`} maxLength={200}
+            value={d[i]} onChange={(e) => { d[i] = e.target.value; setTick((x) => x + 1); }} onKeyDown={(e) => keydown(e, i)} />
+        </div>
+      ))}
+    </>
+  );
+}
+
+export default function Journal({ k }) {
+  const c = JR[k], L = pagesDe(k);
+  const [msg, setMsg] = useState("");
+  const [arm, setArm] = useState("");
+  const [rem, setRem] = useState(() => pickRem(k));
+
+  const save = () => {
+    if (!saveDraft(k)) { setMsg("Écris au moins une ligne pour enregistrer ta page."); return; }
+    setMsg(c.ok); setRem(pickRem(k)); commit();
   };
 
   return (
@@ -39,14 +62,7 @@ export default function Journal({ k }) {
         <h2><span className="ico">{c.ico}</span><span>{c.title}</span><span className="sn">{L.length + (L.length > 1 ? " pages" : " page")}</span></h2>
         <p className="mu" style={{ margin: "0 0 4px" }}>{c.intro}</p>
         <div className="page">
-          <div className="pdate">{dateLong(Date.now())}</div>
-          {[0, 1, 2].map((i) => (
-            <div className="line" key={i}>
-              <span className="num" aria-hidden="true">{i + 1}</span>
-              <input className="ln" placeholder={c.ph[i]} aria-label={`${c.title}, ligne ${i + 1}`} maxLength={200}
-                value={d[i]} onChange={(e) => { d[i] = e.target.value; setTick((x) => x + 1); }} onKeyDown={(e) => keydown(e, i)} />
-            </div>
-          ))}
+          <LinesInput k={k} onEnter={save} />
           <p className="hint">{c.hint}</p>
           {msg && <p className="banner" role="status" style={{ margin: "6px 0" }}>{msg}</p>}
           <div className="foot" style={{ margin: "6px 0 2px" }}>
