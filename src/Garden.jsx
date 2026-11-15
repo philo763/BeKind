@@ -60,14 +60,14 @@ export default function Garden() {
 
   const sel = S.garden.find((f) => f.id === selId);
   const can = S.sun >= DANCE && S.garden.some((f) => !f.dance);
-  const why = S.sun < DANCE ? `Il te manque ${DANCE - S.sun} ☀️ : chaque activité validée en rapporte 1.`
+  const why = S.sun < DANCE ? `Il te manque ${DANCE - S.sun} ☀️ : chaque gratitude en rapporte 1.`
     : !can ? "Toutes tes marguerites dansent déjà !" : "";
 
   return (
     <>
       <section style={{ background: "var(--c1)" }}>
         <h2>
-          <span className="ico">🌼</span><span>Mon jardin</span>
+          <span className="ico">🌷</span><span>Mon jardin de gratitude</span>
           <span className="sn">{n + (n > 1 ? " marguerites" : " marguerite")}</span>
           <span className="sun" aria-label={S.sun + " soleils"}>☀️ {S.sun}</span>
         </h2>
@@ -88,11 +88,11 @@ export default function Garden() {
               {f.dance && <span className="note" aria-hidden="true">♪</span>}
             </div>
           ))}
-          {!n && <p className="empty0">Ton jardin attend sa première marguerite : fais une activité pour la voir éclore 🌱</p>}
+          {!n && <p className="empty0">Ton jardin attend sa première marguerite : écris une gratitude pour la voir éclore 🌱</p>}
         </div>
         <p className="cap mu">
           {sel ? (sel.e || "🌼") + " " + sel.n + " · " + new Date(sel.t).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })
-            : n ? "Touche une fleur pour voir d’où elle vient. Fais-la glisser où tu veux." : ""}
+            : n ? "Touche une fleur pour relire ta gratitude. Fais-la glisser où tu veux." : ""}
         </p>
       </section>
       <section style={{ background: "var(--c4)" }}>

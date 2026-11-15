@@ -14,9 +14,19 @@ cerveau-camembert (la part de chaque hormone dans ce qu'on a déjà fait), puis 
   affichés sur les boutons : Oui +1, Mouais 0 (même hormone), Pas du tout envie −1 (autre hormone).
   « Je ne veux plus cette suggestion » désactive l'activité. Si on refuse toute la base, un message
   le dit. « Revenir au cerveau » relance le tour sans toucher aux scores.
-- **Mon jardin** : une marguerite par activité validée, déplaçable ; les soleils
-  gagnés s'échangent dans la boutique contre une danse.
-- **Journaling** : carnets (gratitude, self love…), ligne du temps et to do list.
+- **Journaling** : un carnet à spirale avec 9 intercalaires (to do list, gratitude, self love,
+  victoires, vide-sac, mot du jour, ressentis, ligne du temps, pellicule). Un intercalaire ouvre
+  la page pour la relire ; le stylo, puis un intercalaire, ouvre le cadre d’ajout (une ligne par
+  entrée pour gratitude, self love et victoires). Le mot du jour s'affiche dans un calendrier.
+  - La **ligne du temps** ne montre que les activités qui n'ont pas déjà leur page dans le carnet.
+  - La **pellicule** rassemble les photos (et leur description) des 3 activités photo ; elle se
+    remplit seulement depuis ces activités, avec l'appareil photo (pas de galerie).
+  - **Pages visuelles**, chacune accessible depuis son carnet : chaque entrée ajoute un élément et
+    rapporte une pièce, à dépenser dans la boutique de la page (`src/Visuels.jsx`, `src/monnaies.js`).
+    Jardin de gratitude (une fleur et un soleil ☀️ par gratitude, danse des marguerites),
+    Mon miroir (😊, personnalisation à venir), Mes montagnes (👟, boutique à venir),
+    Mon sac (🪨, couleurs et décorations), Mon ciel (💧, arc-en-ciel, soleil, éclair, couleur des nuages).
+    Les pièces dépensées et les achats sont gardés dans le profil (`bekind.profil`).
 - **Hormones du bonheur** : carte mentale des 4 hormones, de leurs rôles et des activités liées.
 - **Base de données** : base fixe, la même pour tout le monde (`FIXE` dans `src/data.js`),
   en lecture seule, plus les activités ajoutées à la main, qui partent avec le meilleur score.

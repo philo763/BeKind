@@ -1,5 +1,5 @@
 import { FLOREAL_URL, HABIBITS_URL, JR, LIEN_BTN, emo } from "./data.js";
-import { S, addFlower, commit } from "./store.js";
+import { S, commit } from "./store.js";
 import { LinesInput, hasDraft, msgManque, saveDraft } from "./Journal.jsx";
 import Todo from "./Todo.jsx";
 import Cerveau from "./Cerveau.jsx";
@@ -77,7 +77,7 @@ export default function Home({ sess, setSess }) {
     const valider = () => act((s) => {
       if (link && JR[link] && !saveDraft(link)) { s.err = msgManque(link); return; }
       if (link === "todo" && !S.todo.some((t) => t.d && !(s.todoBase || []).includes(t.id))) { s.err = "Coche au moins une tâche faite pour valider ton activité."; return; }
-      c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
+      c.s++; c.h.forEach((k) => { S.hs[k]++; });
       S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
       commit();
       if (link) { Object.assign(s, newSess("Bravo, une activité de plus pour prendre soin de toi 🌼")); s.err = ""; } else s.ph = "yes";
@@ -122,7 +122,6 @@ export default function Home({ sess, setSess }) {
       <p className="kicker">C’est parti !</p>
       <p className="act">{c.n}</p>
       <p>Vas-y, tu vas te faire du bien 🌼</p>
-      <p className="mu" style={{ fontSize: 14, marginTop: -6 }}>+1 ☀️ et une nouvelle marguerite dans ton jardin</p>
       <button type="button" className="main" autoFocus onClick={() => setSess(newSess("Bravo, une activité de plus pour prendre soin de toi 🌼"))}>C’est fait ✓</button>
     </section>
   );

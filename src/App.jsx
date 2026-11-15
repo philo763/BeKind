@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore } from "./store.js";
 import Home, { newSess } from "./Home.jsx";
-import Garden from "./Garden.jsx";
 import Database from "./Database.jsx";
 import Journaling from "./Journaling.jsx";
 import { Bandeau, Indicateur } from "./Donnees.jsx";
@@ -10,7 +9,7 @@ import Apropos from "./Apropos.jsx";
 import Hormones from "./Hormones.jsx";
 
 /* Entrées du volet : [code, libellé, emoji]. Paramètres et À propos sont tout en bas. */
-const HAUT = [["home", "Hacker mon cerveau", "🌼"], ["garden", "Mon jardin", "🌷"], ["jrn", "Journaling", "📓"], ["hormones", "Hormones du bonheur", "🧠"], ["db", "Base de données", "📋"]];
+const HAUT = [["home", "Hacker mon cerveau", "🌼"], ["jrn", "Journaling", "📓"], ["hormones", "Hormones du bonheur", "🧠"], ["db", "Base de données", "📋"]];
 const BAS = [["settings", "Paramètres", "⚙️"], ["about", "À propos", "💛"]];
 const TITRES = Object.fromEntries([...HAUT, ...BAS].map(([k, l]) => [k, l]));
 
@@ -45,14 +44,14 @@ export default function App() {
   useStore(); // redessine quand les données ou la sauvegarde changent
   const [tab, setTab] = useState("home");
   const [open, setOpen] = useState(false);
-  const [sub, setSub] = useState("gr");
+  const [sub, setSub] = useState(null); // page ouverte du carnet (null : le menu)
   const [sess, setSess] = useState(() => newSess());
   useEffect(() => {
     const k = (e) => { if (e.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
   }, []);
-  const aller = (k) => { setTab(k); setOpen(false); window.scrollTo({ top: 0 }); };
+  const aller = (k) => { setTab(k); setOpen(false); if (k === "jrn") setSub(null); window.scrollTo({ top: 0 }); };
   const entree = ([k, l, e]) => (
     <button key={k} type="button" role="tab" className="dnav" aria-selected={tab === k ? "true" : "false"} onClick={() => aller(k)}>
       <span aria-hidden="true">{e}</span>{l}
@@ -83,7 +82,6 @@ export default function App() {
 
       <div id="view" role="tabpanel">
         {tab === "home" && <Home sess={sess} setSess={setSess} />}
-        {tab === "garden" && <Garden />}
         {tab === "db" && <Database enCours={sess.ph === "propose"} />}
         {tab === "jrn" && <Journaling sub={sub} setSub={setSub} />}
         {tab === "hormones" && <Hormones />}

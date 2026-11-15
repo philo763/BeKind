@@ -63,9 +63,9 @@ export const BASE=[
 ["💆", "Me masser les mains ou les épaules avec une crème", [1, 3]],
 ["✍️", "Écrire un petit mot gentil à quelqu’un", [1]],
 ["🖼️", "Regarder de belles photos ou d’anciens messages tendres", [1]],
-["🤗", "Faire un câlin à quelqu’un (20 secondes minimum)", [1], "cal"],
+["🤗", "Faire un câlin à quelqu’un (20 secondes minimum)", [1]],
 ["🙏", "Remercier ou féliciter quelqu’un", [1]],
-["💖", "Écrire 3 choses que j’apprécie chez moi", [1], "sl"],
+["💖", "Écrire un mot doux pour moi", [1], "sl"],
 ["💌", "Écrire une lettre à moi-même pour dans un an", [1, 2]],
 ["💬", "Envoyer un compliment sincère à quelqu’un", [1]],
 ["🧦", "Mettre des chaussettes bien douillettes", [1]],
@@ -74,7 +74,7 @@ export const BASE=[
 ["🎶", "Écouter de la musique calme les yeux fermés", [2]],
 ["🙆", "Faire des étirements lents", [2]],
 ["📓", "Noter dans un carnet ce qui me pèse et ce qui va bien", [2], "car"],
-["🌈", "Faire une liste de 3 gratitudes", [2], "gr"],
+["🌈", "Écrire une gratitude", [2], "gr"],
 ["🌤️", "Aller à la lumière du jour, près d’une fenêtre ou dehors", [2]],
 ["🌳", "Aller dans un parc ou en forêt", [2]],
 ["☀️", "M’asseoir au soleil quelques minutes", [2]],
@@ -149,11 +149,12 @@ export const SUGG=[
 ["marche", "🍂", "Ramasser une jolie feuille ou un caillou en chemin", [2, 0]],
 ["marche", "🎧", "Faire une marche rapide en musique", [3, 2]]
 ];
-export const MANUELS=["Importer des photos sur Immich", "Coder sur Habibit"];
-export const LINK={"Faire une tâche de ma to-do list": "todo", "Faire mon Habibit du jour": "habibits", "Noter mes petites victoires de la semaine": "vic", "Faire un câlin à quelqu’un (20 secondes minimum)": "cal", "Écrire 3 choses que j’apprécie chez moi": "sl", "Noter dans un carnet ce qui me pèse et ce qui va bien": "car", "Faire une liste de 3 gratitudes": "gr", "Choisir un mot pour guider ma journée": "mot", "Écrire ce que je ressens, sans me juger": "res", "Prendre en photo quelque chose de beau autour de moi": "bel"};
+/* anciennes activités perso retirées de la base (supprimées au chargement) */
+export const RETIREES=["Importer des photos sur Immich", "Coder sur Habibit"];
+export const LINK={"Photographier trois belles choses dehors": "bel", "Prendre mon chat en photo dans sa plus belle pose": "bel", "Faire une tâche de ma to-do list": "todo", "Faire mon Habibit du jour": "habibits", "Noter mes petites victoires de la semaine": "vic", "Écrire un mot doux pour moi": "sl", "Noter dans un carnet ce qui me pèse et ce qui va bien": "car", "Écrire une gratitude": "gr", "Choisir un mot pour guider ma journée": "mot", "Écrire ce que je ressens, sans me juger": "res", "Prendre en photo quelque chose de beau autour de moi": "bel"};
 
 /* Ancien nom d'une activité liée (pour reconnaître les données déjà enregistrées) */
-export const LINK_ANCIEN={"Faire un câlin à quelqu’un (20 secondes minimum)":"cal"};
+export const LINK_ANCIEN={};
 
 /* Onglets liés : texte du bouton sur l'écran « Vas-y » */
 export const HABIBITS_URL="https://philo763.github.io/Habibits/";
@@ -161,8 +162,8 @@ export const FLOREAL_URL="https://splendorous-axolotl-8382a7.netlify.app/";
 export const LIEN_BTN={
   floreal:"🌸 Ouvrir Floreal Fitness Tracker",
   todo:"✅ Ouvrir ma to-do list",habibits:"🎯 Ouvrir Habibits",gr:"🙏 Ouvrir mon journal de gratitude",sl:"💖 Ouvrir mon self love",
-  vic:"🏆 Ouvrir mes petites victoires",cal:"🤗 Ouvrir mes câlins",car:"📓 Ouvrir mon carnet",mot:"🔑 Ouvrir mon mot du jour",
-  res:"💭 Ouvrir mes ressentis",bel:"📸 Ouvrir mes belles choses",
+  vic:"🏆 Ouvrir mes petites victoires",car:"📓 Ouvrir mon carnet",mot:"🔑 Ouvrir mon mot du jour",
+  res:"💭 Ouvrir mes ressentis",bel:"🎞️ Ouvrir ma pellicule",
 };
 
 /* Base fixe, la même pour tout le monde : base de départ + activités sport et animaux.
@@ -179,13 +180,12 @@ export function fresh(){
 
 /* Journaux : « Journaling » regroupe tous les carnets (gr et sl gardent leurs anciennes clés de stockage) */
 export const JR={
- gr:{short:"Gratitude",ico:"🙏",title:"Journal de gratitude",bg:"var(--c4)",intro:"Trois petites choses pour lesquelles je suis reconnaissante aujourd’hui.",ph:["Un moment agréable de ma journée…","Quelqu’un ou quelque chose qui m’a fait du bien…","Une toute petite chose simple…"],hint:"Pas besoin de grand-chose : un café chaud, un rayon de soleil ou un message gentil comptent.",rem:"Un petit rappel de gratitude",ok:"Page enregistrée 🌸 Merci pour ces jolies choses."},
- sl:{short:"Self love",ico:"💖",title:"Self love",bg:"var(--c0)",intro:"Trois choses que j’apprécie chez moi.",ph:["Une qualité que j’aime en moi…","Quelque chose que j’ai bien fait récemment…","Un petit détail de moi qui me plaît…"],hint:"Parle-toi comme à une amie. Écris ce qui est vrai, même si c’est petit.",rem:"Un mot doux de toi à toi",ok:"Page enregistrée 💖 Tu as le droit d’être fière de toi."},
- vic:{short:"Victoires",ico:"🏆",title:"Mes petites victoires",bg:"var(--c3)",intro:"Trois choses dont je suis fière cette semaine, même toutes petites.",ph:["Une chose que j’ai réussie…","Quelque chose que j’ai osé faire…","Je suis fière d’avoir fait…"],hint:"Une victoire, c’est aussi s’être levée, avoir demandé de l’aide ou fait une pause.",rem:"Une victoire passée",ok:"Page enregistrée 🏆 Bravo pour tout ça !"},
- cal:{short:"Câlins",ico:"🤗",title:"Mes câlins",bg:"var(--c1)",intro:"À qui j’ai fait un câlin.",ph:["À qui j’ai fait un câlin…"],hint:"Un câlin, ça peut être aussi un chien, un chat ou un gros pull.",rem:"Un câlin dont je me souviens",ok:"Page enregistrée 🤗 Plein de douceur."},
+ gr:{short:"Gratitude",ico:"🙏",title:"Journal de gratitude",bg:"var(--c4)",intro:"Une petite chose pour laquelle je suis reconnaissante aujourd’hui. Chacune fait pousser une fleur dans mon jardin.",ph:["Aujourd’hui, je suis reconnaissante pour…"],hint:"Pas besoin de grand-chose : un café chaud, un rayon de soleil ou un message gentil comptent.",rem:"Un petit rappel de gratitude",ok:"Page enregistrée 🌸 Merci pour ces jolies choses."},
+ sl:{short:"Self love",ico:"💖",title:"Self love",bg:"var(--c0)",intro:"Un mot doux pour moi : une qualité, une réussite, un petit détail que j’aime. Chacun me rapporte un sourire.",ph:["Ce que j’apprécie chez moi…"],hint:"Parle-toi comme à une amie. Écris ce qui est vrai, même si c’est petit.",rem:"Un mot doux de toi à toi",ok:"Page enregistrée 💖 Tu as le droit d’être fière de toi."},
+ vic:{short:"Victoires",ico:"🏆",title:"Mes petites victoires",bg:"var(--c3)",intro:"Une chose dont je suis fière, même toute petite. Chacune fait grandir mon paysage.",ph:["Je suis fière de…"],hint:"Une victoire, c’est aussi s’être levée, avoir demandé de l’aide ou fait une pause.",rem:"Une victoire passée",ok:"Page enregistrée 🏆 Bravo pour tout ça !"},
  car:{short:"Vide-sac",ico:"🎒",title:"Mon vide-sac",bg:"var(--c2)",intro:"Je pose ici ce qui me pèse.",ph:["Ce qui me pèse en ce moment…"],hint:"Pose les choses sur le papier, sans chercher à les résoudre.",rem:"Un poids déjà posé",ok:"Page enregistrée 🎒 Voilà, c’est posé."},
  mot:{short:"Mot du jour",ico:"🔑",title:"Mon mot du jour",bg:"var(--c4)",intro:"Un mot pour guider ma journée.",ph:["Mon mot pour aujourd’hui…","Pourquoi ce mot… (facultatif)","Comment je peux l’incarner… (facultatif)"],req:[0],hint:"Douceur, courage, lenteur, joie… le premier mot qui vient est souvent le bon.",rem:"Un mot d’un autre jour",ok:"Page enregistrée 🔑 Belle journée à toi."},
  res:{short:"Ressentis",ico:"💭",title:"Mes ressentis",bg:"var(--c0)",intro:"Écrire ce que je ressens, sans me juger.",ph:["La sensation dans mon corps…","Où je le sens dans mon corps…","L’émotion que j’y associe…"],hint:"Tous les ressentis ont le droit d’exister.",rem:"Un ressenti passé",ok:"Page enregistrée 💭 Merci de t’être écoutée."},
- bel:{short:"Belles choses",ico:"📸",title:"Mes belles choses",bg:"var(--c1)",intro:"Une belle chose remarquée autour de moi : une photo et quelques mots.",photo:true,ph:["Photo","Description de ce que j’ai photographié…"],hint:"Prends la photo avec l’appareil ou choisis-en une dans ta galerie.",rem:"Une belle chose d’un autre jour",ok:"Page enregistrée 📸 Le monde est joli."},
+ bel:{short:"Pellicule",ico:"🎞️",title:"Ma pellicule",bg:"var(--c1)",intro:"Une photo de ce qui te plaît à regarder, et quelques mots pour la décrire.",photo:true,ph:["Photo","Une description de ta photo… (facultatif)"],hint:"Prends la photo sur le moment, avec l’appareil.",rem:"Une photo d’un autre jour",ok:"Photo ajoutée à ta pellicule 🎞️ Le monde est joli."},
 };
 export const JR_KEYS=Object.keys(JR);
