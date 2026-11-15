@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { JR } from "./data.js";
-import { S, commit } from "./store.js";
+import { S, commit, pagesDe, definirPages } from "./store.js";
 import { cap } from "./ui.jsx";
 
-const drafts = { gr: ["", "", ""], sl: ["", "", ""] }; // gardés quand on change d'onglet
+const drafts = {}; // gardés quand on change d'onglet
 const pickRem = (k) => {
-  const all = S[k].flatMap((p) => p.items);
+  const all = pagesDe(k).flatMap((p) => p.items);
   return all.length ? all[Math.floor(Math.random() * all.length)] : null;
 };
 const dateLong = (t, withYear) => cap(new Date(t).toLocaleDateString("fr-FR",
   { weekday: "long", day: "numeric", month: "long", ...(withYear ? { year: "numeric" } : {}) }));
 
 export default function Journal({ k }) {
-  const c = JR[k], L = S[k];
+  const c = JR[k], L = pagesDe(k);
+  if (!drafts[k]) drafts[k] = ["", "", ""];
   const [, setTick] = useState(0);
   const [msg, setMsg] = useState("");
   const [arm, setArm] = useState("");
@@ -22,7 +23,7 @@ export default function Journal({ k }) {
   const save = () => {
     const it = d.map((s) => s.trim()).filter(Boolean);
     if (!it.length) { setMsg("Écris au moins une ligne pour enregistrer ta page."); return; }
-    S[k].push({ id: S.next++, t: Date.now(), items: it });
+    pagesDe(k).push({ id: S.next++, t: Date.now(), items: it });
     drafts[k] = ["", "", ""]; setMsg(c.ok); setRem(pickRem(k)); commit();
   };
   const keydown = (e, i) => {
@@ -67,7 +68,7 @@ export default function Journal({ k }) {
                 <div className="oldhead"><span className="pdate">{dateLong(p.t, true)}</span>
                   <button type="button" className={"x" + (on ? " warn" : "")} aria-label="Supprimer cette page"
                     onClick={() => {
-                      if (on) { S[k] = S[k].filter((q) => q.id !== p.id); setArm(""); commit(); setRem(pickRem(k)); } else setArm(p.id);
+                      if (on) { definirPages(k, pagesDe(k).filter((q) => q.id !== p.id)); setArm(""); commit(); setRem(pickRem(k)); } else setArm(p.id);
                     }}>{on ? "Confirmer ?" : "🗑"}</button></div>
                 <ol>{p.items.map((s, i) => <li key={i}>{s}</li>)}</ol>
               </div>

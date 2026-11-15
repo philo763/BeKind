@@ -1,4 +1,4 @@
-import { CN, emo, LINK } from "./data.js";
+import { CN, emo, HABIBITS_URL, LIEN_BTN } from "./data.js";
 import { S, addFlower, commit } from "./store.js";
 
 /* ---------- logique de suggestion (état de session géré par App) ---------- */
@@ -26,7 +26,7 @@ export default function Home({ sess, setSess, goJournal }) {
   const c = sess.cur;
   /* on mute une copie de la session puis on la republie */
   const act = (fn) => { const s = { ...sess, excl: sess.excl.slice(), seen: sess.seen.slice() }; fn(s); setSess(s); };
-  const link = c && LINK[c.n];
+  const link = c && c.k;
 
   if (sess.ph === "idle") return (
     <section className="card" style={{ background: "var(--c0)" }}>
@@ -71,8 +71,13 @@ export default function Home({ sess, setSess, goJournal }) {
       <p className="act">{c.n}</p>
       <p>Vas-y, tu vas te faire du bien 🌼</p>
       <p className="mu" style={{ fontSize: 14, marginTop: -6 }}>+1 ☀️ et une nouvelle marguerite dans ton jardin</p>
-      {link === "gratitude" && <div style={{ marginBottom: 14 }}><button type="button" className="reset" onClick={() => goJournal("gr")}>🙏 Ouvrir mon journal de gratitude</button></div>}
-      {link === "selflove" && <div style={{ marginBottom: 14 }}><button type="button" className="reset" onClick={() => goJournal("sl")}>💖 Ouvrir mon self love</button></div>}
+      {link && (
+        <div style={{ marginBottom: 14 }}>
+          {link === "habibits"
+            ? <a className="reset" href={HABIBITS_URL} target="_blank" rel="noreferrer">{LIEN_BTN.habibits}</a>
+            : <button type="button" className="reset" onClick={() => goJournal(link)}>{LIEN_BTN[link]}</button>}
+        </div>
+      )}
       <button type="button" className="main" autoFocus onClick={() => setSess(newSess("Bravo, une activité de plus pour prendre soin de toi 🌼"))}>C’est fait ✓</button>
     </section>
   );

@@ -4,13 +4,13 @@ import Home, { newSess } from "./Home.jsx";
 import Garden from "./Garden.jsx";
 import Database from "./Database.jsx";
 import Timeline from "./Timeline.jsx";
-import Journal from "./Journal.jsx";
+import Journaling from "./Journaling.jsx";
 import Todo from "./Todo.jsx";
 import Donnees, { Bandeau, Indicateur } from "./Donnees.jsx";
 
 const ROWS = [
   [["home", "Ma suggestion"], ["garden", "Mon jardin"], ["db", "Base de données"], ["tl", "Ligne du temps"]],
-  [["gr", "Gratitude"], ["sl", "Self love"], ["todo", "To do list"], ["data", "Mes données"]],
+  [["jrn", "Journaling"], ["todo", "To do list"], ["data", "Mes données"]],
 ];
 
 function Header() {
@@ -41,6 +41,8 @@ function Header() {
 export default function App() {
   useStore(); // redessine quand les données ou la sauvegarde changent
   const [tab, setTab] = useState("home");
+  const [sub, setSub] = useState("gr");
+  const goJournal = (k) => { if (k === "todo") setTab("todo"); else { setSub(k); setTab("jrn"); } };
   const [sess, setSess] = useState(() => newSess());
   return (
     <main>
@@ -57,11 +59,11 @@ export default function App() {
         ))}
       </nav>
       <div id="view" role="tabpanel">
-        {tab === "home" && <Home sess={sess} setSess={setSess} goJournal={setTab} />}
+        {tab === "home" && <Home sess={sess} setSess={setSess} goJournal={goJournal} />}
         {tab === "garden" && <Garden />}
         {tab === "db" && <Database />}
         {tab === "tl" && <Timeline />}
-        {(tab === "gr" || tab === "sl") && <Journal key={tab} k={tab} />}
+        {tab === "jrn" && <Journaling sub={sub} setSub={setSub} />}
         {tab === "todo" && <Todo />}
         {tab === "data" && <Donnees />}
       </div>

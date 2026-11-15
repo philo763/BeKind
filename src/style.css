@@ -154,3 +154,7 @@ input:checked~.txt{text-decoration:line-through;opacity:.55}
 .bandeau.alerte{background:var(--h0)}
 .bandeau p{margin:0 0 8px}
 .bandeau .banner{margin:0 0 8px}
+
+.subtabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 12px}
+.tab.sm{font-size:13px;padding:5px 11px}
+a.reset{display:inline-block;text-decoration:none}

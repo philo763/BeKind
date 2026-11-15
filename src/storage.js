@@ -13,7 +13,7 @@ export const BK=(function(){
  var ANCIENNE_CLE="bekind-v1"; /* ancien format : tout dans une seule clé */
  var CLE_META="bekind.sauvegarde",CLE_ACCUEIL="bekind.accueil",CLE_AVANT="bekind.avant-import";
  var CLE_LIEN="fichier-sauvegarde";
- var CLES=["activites","hormones","jardin","timeline","todo","gratitude","selflove","profil","compteur"];
+ var CLES=["activites","hormones","jardin","timeline","todo","gratitude","selflove","journaux","profil","compteur"];
  var OPTIONS_FICHIER={types:[{description:"Sauvegarde Be Kind",accept:{"application/json":[".json"]}}]};
 
  /* ---------- lecture / écriture ---------- */
@@ -26,12 +26,12 @@ export const BK=(function(){
 
  /* ---------- correspondance entre l'état de l'appli (S) et les clés ---------- */
  function versDonnees(S){
-  return{activites:S.acts||[],hormones:S.hs||[0,0,0,0],jardin:{garden:S.garden||[],sun:S.sun||0},timeline:S.tl||[],todo:S.todo||[],gratitude:S.gr||[],selflove:S.sl||[],profil:S.prof||null,compteur:S.next||1};
+  return{activites:S.acts||[],hormones:S.hs||[0,0,0,0],jardin:{garden:S.garden||[],sun:S.sun||0},timeline:S.tl||[],todo:S.todo||[],gratitude:S.gr||[],selflove:S.sl||[],journaux:S.jr||{},profil:S.prof||null,compteur:S.next||1};
  }
  function maxIdDe(d){
   var m=0;
   function parcourir(l){(l||[]).forEach(function(x){if(x&&typeof x.id==="number"&&x.id>m)m=x.id})}
-  parcourir(d.activites);parcourir(d.timeline);parcourir(d.todo);parcourir(d.gratitude);parcourir(d.selflove);parcourir(d.jardin&&d.jardin.garden);
+  parcourir(d.activites);parcourir(d.timeline);parcourir(d.todo);parcourir(d.gratitude);parcourir(d.selflove);parcourir(d.jardin&&d.jardin.garden);Object.keys(d.journaux||{}).forEach(function(k){parcourir(d.journaux[k])});
   return m;
  }
  function chargerDepuisCles(){
@@ -40,7 +40,7 @@ export const BK=(function(){
   var j=lire("jardin")||{},hs=lire("hormones");
   var S={v:1,acts:acts,
    hs:(Array.isArray(hs)&&hs.length===4)?hs:[0,0,0,0],
-   tl:lire("timeline")||[],todo:lire("todo")||[],gr:lire("gratitude")||[],sl:lire("selflove")||[]};
+   tl:lire("timeline")||[],todo:lire("todo")||[],gr:lire("gratitude")||[],sl:lire("selflove")||[],jr:lire("journaux")||{}};
   if(Array.isArray(j.garden))S.garden=j.garden;
   if(typeof j.sun==="number")S.sun=j.sun;
   var p=lire("profil");if(p)S.prof=p;
@@ -69,10 +69,11 @@ export const BK=(function(){
  /* ce qui est réellement enregistré (sert aux exports et à la sauvegarde automatique) */
  function lireDonnees(){
   var j=lire("jardin")||{};
-  return{activites:lire("activites")||[],hormones:lire("hormones")||[0,0,0,0],jardin:{garden:j.garden||[],sun:j.sun||0},timeline:lire("timeline")||[],todo:lire("todo")||[],gratitude:lire("gratitude")||[],selflove:lire("selflove")||[],profil:lire("profil"),compteur:lire("compteur")||1};
+  return{activites:lire("activites")||[],hormones:lire("hormones")||[0,0,0,0],jardin:{garden:j.garden||[],sun:j.sun||0},timeline:lire("timeline")||[],todo:lire("todo")||[],gratitude:lire("gratitude")||[],selflove:lire("selflove")||[],journaux:lire("journaux")||{},profil:lire("profil"),compteur:lire("compteur")||1};
  }
  function construire(){return{app:APP,version:VERSION,exporteLe:new Date().toISOString(),donnees:lireDonnees()}}
- function compterHistorique(d){return((d.timeline||[]).length)+((d.gratitude||[]).length)+((d.selflove||[]).length)}
+ function nbPagesJournaux(j){var n=0;Object.keys(j||{}).forEach(function(k){n+=(j[k]||[]).length});return n}
+ function compterHistorique(d){return((d.timeline||[]).length)+((d.gratitude||[]).length)+((d.selflove||[]).length)+nbPagesJournaux(d.journaux)}
 
  /* ---------- format du fichier : vérification ---------- */
  function verifier(texte){
@@ -86,11 +87,11 @@ export const BK=(function(){
   var jOk=d.jardin&&Array.isArray(d.jardin.garden)&&typeof d.jardin.sun==="number";
   var listesOk=["timeline","todo","gratitude","selflove"].every(function(k){return Array.isArray(d[k])});
   if(!actsOk||!hsOk||!jOk||!listesOk)return{ok:false,erreur:"Le contenu du fichier est incomplet ou abîmé. Essaie une autre sauvegarde."};
-  var donnees={activites:d.activites,hormones:d.hormones,jardin:{garden:d.jardin.garden,sun:d.jardin.sun},timeline:d.timeline,todo:d.todo,gratitude:d.gratitude,selflove:d.selflove,profil:d.profil||null};
+  var donnees={activites:d.activites,hormones:d.hormones,jardin:{garden:d.jardin.garden,sun:d.jardin.sun},timeline:d.timeline,todo:d.todo,gratitude:d.gratitude,selflove:d.selflove,journaux:(d.journaux&&typeof d.journaux==="object")?d.journaux:{},profil:d.profil||null};
   donnees.compteur=Math.max(typeof d.compteur==="number"?d.compteur:1,maxIdDe(donnees)+1);
   return{ok:true,
    sauvegarde:{app:APP,version:VERSION,exporteLe:o.exporteLe,donnees:donnees},
-   resume:{nbActivites:d.activites.length,nbFleurs:d.jardin.garden.length,nbPages:d.gratitude.length+d.selflove.length,nbValides:d.timeline.length,exporteLe:o.exporteLe}};
+   resume:{nbActivites:d.activites.length,nbFleurs:d.jardin.garden.length,nbPages:d.gratitude.length+d.selflove.length+nbPagesJournaux(d.journaux),nbValides:d.timeline.length,exporteLe:o.exporteLe}};
  }
 
  /* remplace les données de l'appli (en gardant une copie pour pouvoir annuler) */
@@ -353,7 +354,7 @@ export const BK=(function(){
  function elementsSansSauvegarde(S){
   var dates=[etat.derniere,etat.dernierExport].filter(Boolean).map(function(x){return Date.parse(x)||0}),dernier=dates.length?Math.max.apply(null,dates):0;
   var n=0;
-  [S.tl,S.gr,S.sl].forEach(function(l){(l||[]).forEach(function(x){if(x&&x.t>dernier)n++})});
+  [S.tl,S.gr,S.sl].concat(Object.keys(S.jr||{}).map(function(k){return S.jr[k]})).forEach(function(l){(l||[]).forEach(function(x){if(x&&x.t>dernier)n++})});
   return n;
  }
  function rappelMasque(){return lireLocal(CLE_META).rappelMasqueLe===new Date().toDateString()}
