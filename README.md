@@ -17,39 +17,46 @@ Be Kind propose une activité qui fait du bien selon les quatre hormones du bonh
 
 ## Structure
 
+React 19 + Vite, comme Habibits.
+
 | Fichier | Rôle |
 |---|---|
-| `index.html` | structure de la page et barre d'onglets |
-| `style.css` | styles et thèmes clair / sombre |
-| `donnees.js` | stockage, sauvegarde automatique, export et restauration (objet global `BK`) |
-| `app.js` | toute la logique de l'appli |
-
-Aucune installation ni dépendance : c'est un site statique (seules les polices
-Google Fonts sont chargées depuis internet).
+| `index.html` | page d'entrée Vite (icônes, couleur du thème) |
+| `src/main.jsx` | point d'entrée (polices Fontsource, styles) |
+| `src/App.jsx` | en-tête, onglets, bandeaux |
+| `src/Home.jsx`, `Garden.jsx`, `Database.jsx`, `Timeline.jsx`, `Journal.jsx`, `Todo.jsx`, `Donnees.jsx` | un fichier par onglet |
+| `src/store.js` | état de l'appli (objet `S`), migrations, redessin |
+| `src/storage.js` | stockage, sauvegarde automatique, export et restauration (objet `BK`) |
+| `src/data.js` | hormones, activités de départ, emojis, balises, suggestions |
+| `src/style.css` | styles et thèmes clair / sombre |
+| `vite.config.js` | build + PWA (manifest, service worker) |
+| `public/` | icônes de l'appli (`npm run icons` les régénère depuis `favicon.svg`) |
 
 ## Lancer en local
 
-Ouvrir `index.html` dans un navigateur, ou, depuis PowerShell dans le dossier :
-
 ```powershell
-py -m http.server 8000
+npm install
+npm run dev
 ```
 
-puis aller sur http://localhost:8000.
+`npm run build` produit le dossier `dist/`, `npm run preview` le sert, `npm run lint`
+lance Oxlint.
+
+## PWA
+
+Be Kind est une PWA : `vite-plugin-pwa` génère le manifeste et un service worker
+(mise à jour automatique). Une fois la page ouverte sur le téléphone, on peut
+« Ajouter à l'écran d'accueil » : l'appli s'ouvre en plein écran et fonctionne
+sans connexion.
 
 ## Publier avec GitHub Pages
 
-La publication est automatique à chaque push sur `main`, grâce au workflow
-`.github/workflows/deploy.yml` (pas de build : il copie `index.html`, `style.css`,
-`app.js` et `donnees.js`, puis les déploie).
+À chaque push sur `main`, `.github/workflows/deploy.yml` installe les dépendances
+(`npm ci`), construit le site avec `VITE_BASE=/BeKind/` et le déploie.
 
 À faire une seule fois sur GitHub : **Settings → Pages → Build and deployment →
-Source : GitHub Actions**. Le site apparaît ensuite à l'adresse
-`https://<pseudo>.github.io/BeKind/` ; l'avancement se suit dans l'onglet **Actions**,
-et on peut aussi relancer le déploiement à la main (« Run workflow »).
-
-Si tu ajoutes un nouveau fichier à l'appli (une image, un second script…), pense à
-l'ajouter à la ligne `cp` du workflow, sinon il ne sera pas publié.
+Source : GitHub Actions**. Le site apparaît à `https://<pseudo>.github.io/BeKind/`.
+Le workflow a besoin d'un `package-lock.json` (créé par `npm install`, à committer).
 
 ## Stockage et sauvegardes
 
@@ -82,4 +89,4 @@ L'ancienne clé unique `bekind-v1` est reprise au premier lancement (sans être 
 
 Le fichier de sauvegarde JSON contient ces données dans `donnees`, avec
 `{ app: "bekind", version: 1, exporteLe }`. Toute modification de la structure
-doit prévoir une migration et un changement de `VERSION` dans `donnees.js`.
+doit prévoir une migration et un changement de `VERSION` dans `src/storage.js`.

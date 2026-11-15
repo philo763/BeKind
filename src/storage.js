@@ -5,9 +5,9 @@
       (API d'accès aux fichiers : Chrome, Edge, Samsung Internet)
     - export (menu de partage ou téléchargement) et restauration
     - demande de stockage persistant (anti-nettoyage automatique)
-   Script classique (pas de module) : tout passe par l'objet global BK.
+   Module ES : tout passe par l’objet BK exporté.
 --------------------------------------------------------------------------- */
-var BK=(function(){
+export const BK=(function(){
  var APP="bekind",VERSION=1;
  var PREFIXE="bekind.";
  var ANCIENNE_CLE="bekind-v1"; /* ancien format : tout dans une seule clé */
