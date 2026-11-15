@@ -1,4 +1,3 @@
-var KEY="bekind-v1";
 var HN=["Dopamine","Ocytocine","Sérotonine","Endorphines"];
 var CN=["orange","rose","jaune","bleu"];
 var SEED=[
@@ -32,8 +31,8 @@ function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
 /* ---------- données ---------- */
 function fresh(){var id=1,acts=[];SEED.forEach(function(L,h){L.forEach(function(n,j){acts.push({id:id++,n:n,h:[h],s:0,e:EMO[h][j],g:GT[h][j]})})});return{v:1,next:id,acts:acts,hs:[0,0,0,0],tl:[],todo:[]}}
 var S=null;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+function save(){BK.sauvegarder(S)}
+S=BK.charger();
 if(!S||!Array.isArray(S.acts)||!S.acts.length||!Array.isArray(S.hs)||S.hs.length!==4){S=fresh();save()}
 S.tl=S.tl||[];S.todo=S.todo||[];
 (function(){var EM={},ch=false;SEED.forEach(function(L,h){L.forEach(function(n,j){EM[n]=EMO[h][j]})});S.acts.forEach(function(a){if(!a.e){a.e=EM[a.n]||"🌼";ch=true}});if(ch)save()})();
@@ -351,17 +350,76 @@ function tl(){
  for(var k=0;k<4;k++)h+='<span><i class="dot" style="background:var(--s'+k+')"></i>'+HN[k]+'</span>';
  return h+'</div></section>'}
 
+/* ---------- mes données : sauvegardes, export, restauration ---------- */
+var dmsg="",bmsg="",rest={open:false,choix:null,erreur:"",continuer:true};
+function resetRest(){rest={open:false,choix:null,erreur:"",continuer:true}}
+var TXT_STATUT={inactive:"Pas encore activée",ok:"Active ✔",reconnecter:"En pause : à reconnecter",introuvable:"Fichier introuvable",erreur:"Problème à la dernière sauvegarde",conflit:"À vérifier : le fichier a plus d’historique (voir le bandeau en haut)"};
+var TXT_PERSIST={inconnu:"Pas encore demandée",accorde:"Activée ✔",non:"Pas accordée par le navigateur",indisponible:"Pas disponible sur ce navigateur"};
+function btn(act,label,cls){return'<button type="button" class="'+(cls||"reset sm")+'" data-a="'+act+'">'+label+'</button>'}
+function plur(n,mot){return n+" "+mot+(n>1?"s":"")}
+function donnees(){
+ var s=BK.etat(),fd=BK.formaterDateHeure,h;
+ h='<section style="background:var(--c2)"><h2><span class="ico">💾</span><span>Mes données</span></h2><p style="margin:0">Tes activités, ton jardin et tes pages sont enregistrés dans ce navigateur, sur cet appareil. Voici comment les protéger.</p>'+(dmsg?'<p class="banner" role="status" style="margin:10px 0 0">'+esc(dmsg)+'</p>':'')+'</section>';
+ /* sauvegarde automatique */
+ h+='<section style="background:var(--c3)"><h2><span class="ico">🔁</span><span>Sauvegarde automatique</span></h2><p style="margin:0 0 6px">Be Kind copie tes données dans un fichier que tu choisis et le met à jour tout seul à chaque changement.</p>';
+ if(s.supporte){
+  h+='<p style="margin:6px 0"><strong>État :</strong> '+TXT_STATUT[s.statut]+'</p>'+(s.nom?'<p style="margin:6px 0">Fichier : <strong>'+esc(s.nom)+'</strong></p>':'')+(s.derniere?'<p style="margin:6px 0">Dernière sauvegarde : '+esc(fd(s.derniere))+'</p>':'')+'<p class="mu" style="font-size:14px;margin:6px 0">Pour ta vie privée, le navigateur ne donne que le nom du fichier, pas son emplacement. Si tu le déplaces, le renommes ou le supprimes, Be Kind te prévient.</p><div class="tools" style="justify-content:flex-start">';
+  if(s.statut==="inactive")h+=btn("dauto","Activer la sauvegarde automatique","main sm");
+  if(s.statut==="reconnecter")h+=btn("drecon","Reconnecter","main sm");
+  if(s.statut==="ok"||s.statut==="erreur"||s.statut==="introuvable")h+=btn("dauto",s.statut==="introuvable"?"Choisir un nouvel emplacement":"Changer d’emplacement","main sm");
+  if(s.statut!=="inactive")h+=btn("dstop","Arrêter");
+  h+='</div>';
+ }else h+='<p>Ton navigateur ne sait pas faire ça (c’est le cas de Firefox et de Safari, par exemple). Pas grave : utilise l’export ci-dessous de temps en temps.</p>';
+ h+='</section>';
+ /* protection */
+ h+='<section style="background:var(--c1)"><h2><span class="ico">🛡️</span><span>Protection contre le nettoyage</span></h2><p style="margin:0 0 6px">Quand l’appareil manque de place, il peut supprimer les données des sites sans prévenir. On demande au navigateur de ne pas toucher à celles de Be Kind.</p><p style="margin:6px 0"><strong>État :</strong> '+TXT_PERSIST[s.persistant]+'</p>';
+ if(s.persistant!=="accorde"&&s.persistant!=="indisponible")h+='<div class="tools" style="justify-content:flex-start">'+btn("dpersist","Demander la protection","main sm")+'</div>';
+ h+='<p class="mu" style="font-size:14px;margin:6px 0 2px">Ça ne protège pas si tu effaces toi-même les données du navigateur : pour ça, il y a la sauvegarde automatique.</p></section>';
+ /* export */
+ h+='<section style="background:var(--c4)"><h2><span class="ico">📤</span><span>Exporter mes données</span></h2><p style="margin:0 0 6px">Tu récupères un fichier à envoyer où tu veux : Drive, mail, ordinateur… Pratique pour changer d’appareil ou garder une copie.</p><div class="tools" style="justify-content:flex-start">'+btn("dexp","Exporter mes données","main sm")+'</div>'+(s.dernierExport?'<p class="mu" style="font-size:14px;margin:6px 0 2px">Dernier export : '+esc(fd(s.dernierExport))+'</p>':'')+'</section>';
+ /* restauration */
+ h+='<section style="background:var(--c0)"><h2><span class="ico">📥</span><span>Restaurer</span></h2>';
+ if(!rest.open){
+  h+='<div class="tools" style="justify-content:flex-start;margin-top:0">'+btn("drest","Restaurer depuis un fichier","main sm")+(BK.existeCopieAvantImport()?btn("dundo","Annuler la dernière restauration"):"")+'</div>';
+ }else if(!rest.choix){
+  h+='<p style="margin:0 0 6px">Choisis ton fichier de sauvegarde Be Kind (il se termine par .json).</p>'+(rest.erreur?'<p class="banner" role="alert" style="margin:6px 0">'+esc(rest.erreur)+'</p>':'')+'<div class="tools" style="justify-content:flex-start">'+(s.supporte?btn("dchoose","Choisir un fichier","main sm"):'<label class="main sm" style="display:inline-block;text-align:center">Choisir un fichier<input type="file" id="dfile" accept=".json,application/json" style="display:none"></label>')+btn("dcancel","Annuler")+'</div>';
+ }else{
+  var r=rest.choix.resume;
+  h+='<p style="margin:0 0 4px"><strong>'+esc(rest.choix.nom)+'</strong></p><ul style="margin:4px 0 8px;padding-left:20px">'+(r.exporteLe?'<li>Enregistré le '+esc(fd(r.exporteLe))+'</li>':'')+'<li>'+plur(r.nbActivites,"activité")+'</li><li>'+plur(r.nbValides,"activité réalisée")+', '+plur(r.nbFleurs,"fleur")+' dans le jardin</li><li>'+plur(r.nbPages,"page")+' de journal</li></ul><p class="banner" style="margin:6px 0">⚠ Ça remplace les données de cet appareil. Tu pourras annuler juste après, ici même.</p>';
+  if(rest.choix.handle)h+='<label><input type="checkbox" data-a="dcont"'+(rest.continuer?" checked":"")+'><span class="cb">'+TICK+'</span><span class="sgt">Continuer à sauvegarder automatiquement dans ce fichier</span></label>';
+  h+='<div class="tools" style="justify-content:flex-start">'+btn("dconfirm","Remplacer mes données","main sm")+btn("dother","Choisir un autre fichier")+'</div>';
+ }
+ return h+'</section>'}
+function recevoir(res){
+ if(res.annule)return;
+ if(!res.ok){rest.choix=null;rest.erreur=res.erreur}else{rest.erreur="";rest.choix=res}
+ render()}
+/* bandeaux en haut de l'écran + repère « sauvegarde active » */
+function renderBandeau(){
+ var s=BK.etat(),el=document.getElementById("bandeau"),ind=document.getElementById("ind"),h="",n;
+ if(ind){
+  if(s.statut==="inactive")ind.hidden=true;
+  else{var pb=s.statut!=="ok";ind.hidden=false;ind.className="indic"+(pb?" alerte":"");ind.textContent=pb?"⚠ Sauvegarde à vérifier":(s.derniere?"✔ Sauvegardé "+BK.formaterCourt(s.derniere):"✔ Sauvegarde active")}}
+ var zone=function(t,cls,b){return'<div class="bandeau '+cls+'" role="'+(cls==="info"?"status":"alert")+'"><p>'+t+'</p>'+(bmsg?'<p class="banner">'+esc(bmsg)+'</p>':'')+'<div class="tools" style="justify-content:flex-start;margin:0">'+b+'</div></div>'};
+ if(s.stockage==="erreur")h=zone("Be Kind n’arrive pas à enregistrer sur cet appareil (stockage plein ou bloqué, navigation privée ?). Fais un export pour ne rien perdre.","alerte",btn("bnexp","Exporter mes données"));
+ else if(s.statut==="reconnecter")h=zone("Ta sauvegarde automatique est en pause : le navigateur veut que tu reconfirmes l’accès au fichier « "+esc(s.nom||"")+" ».","alerte",btn("drecon","Reconnecter"));
+ else if(s.statut==="introuvable")h=zone("Le fichier de sauvegarde « "+esc(s.nom||"")+" » est introuvable. Il a peut-être été déplacé, renommé ou supprimé.","alerte",btn("dauto","Choisir un nouvel emplacement"));
+ else if(s.statut==="erreur")h=zone("La dernière sauvegarde n’a pas marché. Be Kind réessaiera à ta prochaine action.","alerte",btn("bnretry","Réessayer"));
+ else if(s.statut==="conflit")h=zone("Le fichier « "+esc(s.nom||"")+" » contient plus d’historique que cet appareil"+(s.conflit?" ("+plur(s.conflit.nbValides,"activité réalisée")+")":"")+". Tu veux récupérer ces données ?","alerte",btn("bnrestore","Restaurer depuis le fichier")+btn("bnkeep","Garder cet appareil"));
+ else if(s.statut==="inactive"&&!BK.rappelMasque()&&(n=BK.elementsSansSauvegarde(S))>=7)h=zone("Tu as fait "+n+" choses (activités, pages) depuis ta dernière sauvegarde. Fais-en une copie pour ne rien perdre.","info",btn("bnexp","Sauvegarder maintenant")+btn("bnlater","Plus tard"));
+ if(el)el.innerHTML=h}
+
 /* ---------- affichage et événements ---------- */
 var tab="home";
 function render(focus){
  var v=document.getElementById("view");
  document.querySelectorAll(".tab").forEach(function(b){b.setAttribute("aria-selected",b.dataset.t===tab?"true":"false")});
- v.innerHTML=tab==="home"?home():tab==="garden"?garden():tab==="db"?db():tab==="todo"?todo():(tab==="gr"||tab==="sl")?journal(tab):tl();
+ v.innerHTML=tab==="home"?home():tab==="garden"?garden():tab==="db"?db():tab==="todo"?todo():tab==="data"?donnees():(tab==="gr"||tab==="sl")?journal(tab):tl();
  if(focus){var b=v.querySelector(".card button");if(b)b.focus({preventScroll:true})}}
 
 document.addEventListener("click",function(e){
  var b=e.target.closest("[data-a],[data-t]");if(!b)return;
- if(b.dataset.t){tab=b.dataset.t;armed=false;dbMsg="";dbOk="";pickFor=null;gMode=null;gMsg="";selId=null;wiz=null;jarm="";jmsg="";if(tab==="gr"||tab==="sl")pickRem(tab);render();return}
+ if(b.dataset.t){tab=b.dataset.t;armed=false;dbMsg="";dbOk="";pickFor=null;gMode=null;gMsg="";selId=null;wiz=null;jarm="";jmsg="";dmsg="";resetRest();if(tab==="gr"||tab==="sl")pickRem(tab);render();return}
  var a=b.dataset.a,id=+b.dataset.i,h=+b.dataset.h,x,idx;
  switch(a){
   case"start":sess=newSess();decide();render(true);break;
@@ -394,6 +452,22 @@ document.addEventListener("click",function(e){
   case"jsave":jSave(b.dataset.j);break;
   case"jrem":pickRem(b.dataset.j);render();break;
   case"jdel":x=b.dataset.j+":"+id;if(jarm===x){S[b.dataset.j]=S[b.dataset.j].filter(function(k){return k.id!==id});jarm="";save();pickRem(b.dataset.j)}else jarm=x;render();break;
+  case"dauto":bmsg="";dmsg="";BK.activerAuto().then(function(r){if(!r.ok&&r.raison==="erreur")dmsg="Je n’ai pas réussi à créer le fichier. Réessaie ou choisis un autre dossier.";renderBandeau();render()});break;
+  case"drecon":bmsg="";BK.reconnecter().then(function(r){bmsg=(!r.ok&&r.raison==="refuse")?"L’accès a été refusé. Appuie à nouveau sur « Reconnecter » et choisis « Autoriser ».":"";renderBandeau();render()});break;
+  case"dstop":if(window.confirm("Arrêter la sauvegarde automatique ? Le fichier restera où il est, mais ne sera plus mis à jour."))BK.desactiverAuto().then(function(){renderBandeau();render()});break;
+  case"dpersist":BK.demanderPersistant().then(render);break;
+  case"dexp":BK.exporter().then(function(r){dmsg=r==="partage"?"Fichier partagé ✔":r==="telecharge"?"Fichier téléchargé ✔ Regarde dans tes téléchargements.":"";renderBandeau();render()});break;
+  case"bnexp":BK.exporter().then(function(){renderBandeau()});break;
+  case"bnretry":BK.sauvegarderMaintenant();break;
+  case"bnrestore":BK.resoudreConflit("restaurer").then(function(r){if(r==="recharger")window.location.reload()});break;
+  case"bnkeep":if(window.confirm("Le fichier de sauvegarde sera remplacé par les données de cet appareil. Continuer ?"))BK.resoudreConflit("ecraser");break;
+  case"bnlater":BK.masquerRappel();renderBandeau();break;
+  case"drest":resetRest();rest.open=true;render();break;
+  case"dchoose":BK.choisirFichier().then(recevoir);break;
+  case"dcancel":resetRest();render();break;
+  case"dother":rest.choix=null;rest.erreur="";render();break;
+  case"dconfirm":BK.confirmerRestauration(rest.choix,{continuerDansCeFichier:rest.continuer&&!!rest.choix.handle}).then(function(){window.location.reload()}).catch(function(){rest.choix=null;rest.erreur="La restauration n’a pas marché. Tes données actuelles n’ont pas été touchées.";render()});break;
+  case"dundo":if(window.confirm("Revenir aux données d’avant la dernière restauration ?"))BK.annulerDernierImport().then(function(ok){if(ok)window.location.reload();else{dmsg="Impossible d’annuler : la copie de secours n’est pas lisible.";render()}});break;
   case"gbuy":gMode="pick";gMsg="";selId=null;render();break;
   case"gcancel":gMode=null;render();break;
   case"todoadd":todoAdd();break;
@@ -409,6 +483,8 @@ document.addEventListener("change",function(e){
  if(t.id==="newtag"){newT=t.value;return}
  if(t.dataset.a==="dbtag"){var y=S.acts.filter(function(k){return k.id===+t.dataset.i})[0];if(y){y.g=t.value;save()}return}
  if(t.dataset.a==="wizchk"){if(t.checked)delete wiz.off[+t.dataset.i];else wiz.off[+t.dataset.i]=1;var wc=document.getElementById("wizcount");if(wc)wc.textContent=wizCands().filter(function(o){return!wiz.off[o.i]}).length;return}
+ if(t.dataset.a==="dcont"){rest.continuer=t.checked;return}
+ if(t.id==="dfile"){var ff=t.files&&t.files[0];t.value="";if(ff)BK.lireFichierChoisi(ff).then(recevoir);return}
  if(t.dataset.a!=="todochk")return;
  var x=S.todo.filter(function(k){return k.id===+t.dataset.i})[0];if(x){x.d=t.checked;save();render()}});
 document.addEventListener("input",function(e){
@@ -421,4 +497,7 @@ document.addEventListener("keydown",function(e){
  else if(e.target.id==="todoin"){e.preventDefault();todoAdd()}
  else if(e.target.dataset.j&&e.target.dataset.n){e.preventDefault();var jj=e.target.dataset.j,nn=+e.target.dataset.n;if(nn<2){var nx=document.querySelector('[data-j="'+jj+'"][data-n="'+(nn+1)+'"]');if(nx)nx.focus()}else jSave(jj)}
  else if(e.target.id==="emojiin"){e.preventDefault();var fe=firstEmoji(e.target.value);if(fe)setEmoji(fe)}});
+BK.abonner(function(){renderBandeau();if(tab==="data")render()});
+BK.initialiser();
+renderBandeau();
 render();

@@ -21,6 +21,7 @@ Be Kind propose une activité qui fait du bien selon les quatre hormones du bonh
 |---|---|
 | `index.html` | structure de la page et barre d'onglets |
 | `style.css` | styles et thèmes clair / sombre |
+| `donnees.js` | stockage, sauvegarde automatique, export et restauration (objet global `BK`) |
 | `app.js` | toute la logique de l'appli |
 
 Aucune installation ni dépendance : c'est un site statique (seules les polices
@@ -42,10 +43,35 @@ puis aller sur http://localhost:8000.
 2. Source : **Deploy from a branch**, branche `main`, dossier `/ (root)`.
 3. Enregistrer : le site apparaît à l'adresse `https://<pseudo>.github.io/BeKind/`.
 
-## Tes données
+## Stockage et sauvegardes
 
-Tout est sauvegardé dans le navigateur de l'appareil utilisé (`localStorage`) :
-rien n'est envoyé nulle part. Conséquences : les données ne se synchronisent pas
-entre ordinateur et téléphone, et elles sont séparées de celles de la version
-publiée dans Claude. Une synchronisation (base de données en ligne) pourra être
-ajoutée plus tard.
+Même principe que l'appli Habibits : pas de compte, pas de serveur, les données
+restent **dans le navigateur** (`localStorage`). L'onglet **Mes données** regroupe :
+
+- **Sauvegarde automatique** : copie des données dans un fichier choisi par
+  l'utilisateur (API d'accès aux fichiers, lien conservé dans IndexedDB), mise à
+  jour à chaque changement. Si le fichier contient plus d'historique que
+  l'appareil, Be Kind propose de le restaurer plutôt que de l'écraser.
+- **Protection contre le nettoyage** : demande de stockage persistant au navigateur.
+- **Export** : fichier JSON partagé (menu de partage) ou téléchargé.
+- **Restauration** : choix d'un fichier, résumé affiché, confirmation, puis
+  possibilité d'**annuler** la dernière restauration (copie de secours gardée).
+- Bandeaux d'alerte en haut de l'écran (fichier à reconnecter, introuvable,
+  stockage refusé) et rappel de faire une copie après 7 choses sans sauvegarde.
+
+Chaque navigateur et chaque appareil a son propre stockage : pour changer
+d'appareil, exporter puis restaurer un fichier. Le stockage persistant ne protège
+pas contre l'effacement manuel des données du navigateur ; la sauvegarde
+automatique n'existe que dans les navigateurs compatibles (Chrome, Edge, Samsung
+Internet), pas Firefox ni Safari : il faut alors exporter de temps en temps.
+
+### Format des données
+
+Clés `localStorage` : `bekind.activites`, `bekind.hormones`, `bekind.jardin`
+(`{ garden, sun }`), `bekind.timeline`, `bekind.todo`, `bekind.gratitude`,
+`bekind.selflove`, `bekind.profil` et `bekind.compteur` (prochain identifiant).
+L'ancienne clé unique `bekind-v1` est reprise au premier lancement (sans être effacée).
+
+Le fichier de sauvegarde JSON contient ces données dans `donnees`, avec
+`{ app: "bekind", version: 1, exporteLe }`. Toute modification de la structure
+doit prévoir une migration et un changement de `VERSION` dans `donnees.js`.
