@@ -4,13 +4,13 @@ import Home, { newSess } from "./Home.jsx";
 import Garden from "./Garden.jsx";
 import Database from "./Database.jsx";
 import Journaling from "./Journaling.jsx";
-import Todo from "./Todo.jsx";
 import { Bandeau, Indicateur } from "./Donnees.jsx";
 import Parametres from "./Parametres.jsx";
 import Apropos from "./Apropos.jsx";
+import Hormones from "./Hormones.jsx";
 
 /* Entrées du volet : [code, libellé, emoji]. Paramètres et À propos sont tout en bas. */
-const HAUT = [["home", "Ma suggestion", "🌼"], ["garden", "Mon jardin", "🌷"], ["db", "Base de données", "📋"], ["jrn", "Journaling", "📓"], ["todo", "To do list", "✅"]];
+const HAUT = [["home", "Hacker mon cerveau", "🌼"], ["garden", "Mon jardin", "🌷"], ["jrn", "Journaling", "📓"], ["hormones", "Hormones du bonheur", "🧠"], ["db", "Base de données", "📋"]];
 const BAS = [["settings", "Paramètres", "⚙️"], ["about", "À propos", "💛"]];
 const TITRES = Object.fromEntries([...HAUT, ...BAS].map(([k, l]) => [k, l]));
 
@@ -84,9 +84,9 @@ export default function App() {
       <div id="view" role="tabpanel">
         {tab === "home" && <Home sess={sess} setSess={setSess} />}
         {tab === "garden" && <Garden />}
-        {tab === "db" && <Database />}
+        {tab === "db" && <Database enCours={sess.ph === "propose"} />}
         {tab === "jrn" && <Journaling sub={sub} setSub={setSub} />}
-        {tab === "todo" && <Todo />}
+        {tab === "hormones" && <Hormones />}
         {tab === "settings" && <Parametres />}
         {tab === "about" && <Apropos />}
       </div>
