@@ -31,7 +31,6 @@ export default function Todo({ compact }) {
           onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} />
         <button type="button" onClick={add}>Ajouter</button>
       </div>
-      {S.todo.some((t) => t.d) && <div className="foot"><button type="button" className="reset" onClick={() => { S.todo = S.todo.filter((k) => !k.d); commit(); }}>Effacer les terminées</button></div>}
     </Wrap>
   );
 }

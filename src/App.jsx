@@ -33,8 +33,10 @@ function Header() {
         <path d="M159 73Q170 86 181 73" stroke="#5A4A5C" strokeWidth="3" fill="none" strokeLinecap="round" />
         <circle cx="153" cy="73" r="4" fill="#F7B6C6" opacity=".85" /><circle cx="187" cy="73" r="4" fill="#F7B6C6" opacity=".85" />
       </svg>
-      <h1>Be Kind</h1>
-      <p className="sub">Un petit coup de pouce pour prendre soin de moi</p>
+      <div className="htxt">
+        <h1>Be Kind</h1>
+        <p className="sub">Un petit coup de pouce pour prendre soin de moi</p>
+      </div>
     </header>
   );
 }

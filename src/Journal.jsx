@@ -14,6 +14,9 @@ const pickRem = (k) => {
 const dateLong = (t, withYear) => cap(new Date(t).toLocaleDateString("fr-FR",
   { weekday: "long", day: "numeric", month: "long", ...(withYear ? { year: "numeric" } : {}) }));
 
+/* Y a-t-il quelque chose de saisi dans le brouillon ? */
+export const hasDraft = (k) => draftOf(k).some((s) => s.trim());
+
 /* Texte à afficher quand il manque une saisie */
 export function msgManque(k) {
   const c = JR[k];
@@ -81,10 +84,10 @@ function PhotoInput({ d, bump }) {
 }
 
 /* Les lignes d'une page (utilisées dans l'onglet et sous la suggestion) */
-export function LinesInput({ k, onEnter }) {
+export function LinesInput({ k, onEnter, onChange }) {
   const c = JR[k], d = draftOf(k);
   const [, setTick] = useState(0);
-  const bump = () => setTick((x) => x + 1);
+  const bump = () => { setTick((x) => x + 1); onChange?.(); };
   const keydown = (e) => {
     if (e.key !== "Enter") return;
     e.preventDefault();

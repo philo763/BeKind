@@ -1,7 +1,8 @@
 import { CN, FLOREAL_URL, HABIBITS_URL, JR, LIEN_BTN, emo } from "./data.js";
 import { S, addFlower, commit } from "./store.js";
-import { LinesInput, msgManque, saveDraft } from "./Journal.jsx";
+import { LinesInput, hasDraft, msgManque, saveDraft } from "./Journal.jsx";
 import Todo from "./Todo.jsx";
+import { useState } from "react";
 
 const EXTERNES = { habibits: HABIBITS_URL, floreal: FLOREAL_URL };
 
@@ -29,17 +30,24 @@ export function propose(s, h) {
 
 export default function Home({ sess, setSess }) {
   const c = sess.cur;
+  const [, setTick] = useState(0);
   /* on mute une copie de la session puis on la republie */
   const act = (fn) => { const s = { ...sess, excl: sess.excl.slice(), seen: sess.seen.slice() }; fn(s); setSess(s); };
   const link = c && c.k;
 
   if (sess.ph === "idle") return (
-    <section className="card" style={{ background: "var(--c0)" }}>
-      {sess.msg && <p className="big">{sess.msg}</p>}
-      <h2>Un petit coup de mou ?</h2>
-      <p>Je te propose une activité pour te remettre d’aplomb.</p>
-      <button type="button" className="main" onClick={() => act((s) => { Object.assign(s, newSess()); decide(s); })}>Trouver une activité</button>
-    </section>
+    <>
+      {sess.msg && (
+        <section className="card" style={{ background: "var(--c1)" }}>
+          <p className="big" style={{ margin: 0 }}>{sess.msg}</p>
+        </section>
+      )}
+      <section className="card" style={{ background: "var(--c0)" }}>
+        <h2>Un petit coup de mou ?</h2>
+        <p>Je te propose une activité pour te remettre d’aplomb.</p>
+        <button type="button" className="main" onClick={() => act((s) => { Object.assign(s, newSess()); decide(s); })}>Trouver une activité</button>
+      </section>
+    </>
   );
   if (sess.ph === "choose") return (
     <section className="card" style={{ background: "var(--c4)" }}>
@@ -54,6 +62,7 @@ export default function Home({ sess, setSess }) {
     </section>
   );
   if (sess.ph === "propose") {
+    const saisi = link === "todo" ? S.todo.some((t) => t.d && !(sess.todoBase || []).includes(t.id)) : link && JR[link] ? hasDraft(link) : false;
     const valider = () => act((s) => {
       if (link && JR[link] && !saveDraft(link)) { s.err = msgManque(link); return; }
       if (link === "todo" && !S.todo.some((t) => t.d && !(s.todoBase || []).includes(t.id))) { s.err = "Coche au moins une tâche faite pour valider ton activité."; return; }
@@ -69,7 +78,7 @@ export default function Home({ sess, setSess }) {
         <p className="act">{c.n}</p>
         {link && JR[link] && (
           <div className="page embed">
-            <LinesInput k={link} onEnter={valider} />
+            <LinesInput k={link} onEnter={valider} onChange={() => setTick((x) => x + 1)} />
             {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}
           </div>
         )}
@@ -83,7 +92,7 @@ export default function Home({ sess, setSess }) {
           </div>
         )}
         <div className="answers">
-          <button type="button" className="main" onClick={valider}>Oui, je fais ça</button>
+          <button type="button" className="main" onClick={valider}>{saisi ? "Valider ma saisie" : "Oui, je fais ça"}</button>
           <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; propose(s, s.hor); })}>Mouais…</button>
           <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; s.excl.push(s.hor); decide(s); })}>Pas du tout envie</button>
         </div>
