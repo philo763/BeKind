@@ -3,7 +3,6 @@ import { useStore } from "./store.js";
 import Home, { newSess } from "./Home.jsx";
 import Garden from "./Garden.jsx";
 import Database from "./Database.jsx";
-import Timeline from "./Timeline.jsx";
 import Journaling from "./Journaling.jsx";
 import Todo from "./Todo.jsx";
 import { Bandeau, Indicateur } from "./Donnees.jsx";
@@ -11,7 +10,7 @@ import Parametres from "./Parametres.jsx";
 import Apropos from "./Apropos.jsx";
 
 /* Entrées du volet : [code, libellé, emoji]. Paramètres et À propos sont tout en bas. */
-const HAUT = [["home", "Ma suggestion", "🌼"], ["garden", "Mon jardin", "🌷"], ["db", "Base de données", "📋"], ["tl", "Ligne du temps", "🕰️"], ["jrn", "Journaling", "📓"], ["todo", "To do list", "✅"]];
+const HAUT = [["home", "Ma suggestion", "🌼"], ["garden", "Mon jardin", "🌷"], ["db", "Base de données", "📋"], ["jrn", "Journaling", "📓"], ["todo", "To do list", "✅"]];
 const BAS = [["settings", "Paramètres", "⚙️"], ["about", "À propos", "💛"]];
 const TITRES = Object.fromEntries([...HAUT, ...BAS].map(([k, l]) => [k, l]));
 
@@ -84,7 +83,6 @@ export default function App() {
         {tab === "home" && <Home sess={sess} setSess={setSess} />}
         {tab === "garden" && <Garden />}
         {tab === "db" && <Database />}
-        {tab === "tl" && <Timeline />}
         {tab === "jrn" && <Journaling sub={sub} setSub={setSub} />}
         {tab === "todo" && <Todo />}
         {tab === "settings" && <Parametres />}

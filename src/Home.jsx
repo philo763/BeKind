@@ -1,6 +1,6 @@
 import { CN, FLOREAL_URL, HABIBITS_URL, JR, LIEN_BTN, emo } from "./data.js";
 import { S, addFlower, commit } from "./store.js";
-import { LinesInput, saveDraft } from "./Journal.jsx";
+import { LinesInput, msgManque, saveDraft } from "./Journal.jsx";
 import Todo from "./Todo.jsx";
 
 const EXTERNES = { habibits: HABIBITS_URL, floreal: FLOREAL_URL };
@@ -23,7 +23,8 @@ export function propose(s, h) {
   const mx = Math.max(...p.map((a) => a.s));
   const top = p.filter((a) => a.s === mx);
   const a = top[Math.floor(Math.random() * top.length)];
-  s.cur = a; s.hor = h; s.seen.push(a.id); s.ph = "propose";
+  s.cur = a; s.hor = h; s.seen.push(a.id); s.ph = "propose"; s.err = "";
+  s.todoBase = a.k === "todo" ? S.todo.filter((t) => t.d).map((t) => t.id) : [];
 }
 
 export default function Home({ sess, setSess }) {
@@ -54,7 +55,8 @@ export default function Home({ sess, setSess }) {
   );
   if (sess.ph === "propose") {
     const valider = () => act((s) => {
-      if (link && JR[link] && !saveDraft(link)) { s.err = "Écris au moins une ligne pour valider ton activité."; return; }
+      if (link && JR[link] && !saveDraft(link)) { s.err = msgManque(link); return; }
+      if (link === "todo" && !S.todo.some((t) => t.d && !(s.todoBase || []).includes(t.id))) { s.err = "Coche au moins une tâche faite pour valider ton activité."; return; }
       c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
       S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
       commit();
@@ -71,7 +73,10 @@ export default function Home({ sess, setSess }) {
             {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}
           </div>
         )}
-        {link === "todo" && <div className="embed"><Todo compact /></div>}
+        {link === "todo" && (
+          <div className="embed"><Todo compact />
+            {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}</div>
+        )}
         {EXTERNES[link] && (
           <div style={{ marginBottom: 14 }}>
             <a className="reset" href={EXTERNES[link]} target="_blank" rel="noreferrer">{LIEN_BTN[link]}</a>

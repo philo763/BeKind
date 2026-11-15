@@ -181,3 +181,4 @@ a.reset{display:inline-block;text-decoration:none}
 .appico.repli{display:grid;place-items:center;font-size:28px;background:var(--c4)}
 .embed{text-align:left;margin:0 0 14px}
 .page.embed{margin:6px 0 14px}
+.photo{margin:6px 0}.photo img,.pphoto{display:block;max-width:100%;max-height:260px;border-radius:14px;margin:4px 0;object-fit:cover}

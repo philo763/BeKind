@@ -20,7 +20,7 @@ export default function Apropos() {
         <p style={{ margin: 0 }}>Tous nos cerveaux ne sont pas câblés exactement de la même manière, alors adaptons-nous d’abord à nous-même !</p>
       </section>
       <section style={{ background: "var(--c2)" }}>
-        <h2><span className="ico">🔗</span><span>Mes autres applis</span></h2>
+        <h2><span className="ico">🔗</span><span>Boîte à outils</span></h2>
         <ul className="apps">
           <li>
             <a href={HABIBITS_URL} target="_blank" rel="noreferrer">
