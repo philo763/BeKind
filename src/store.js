@@ -2,7 +2,7 @@
    compteur de version pour que React sache quand redessiner. */
 import { useSyncExternalStore } from "react";
 import { BK } from "./storage.js";
-import { fresh, EMO, SEED, TG_BY, LINK, gardenH } from "./data.js";
+import { fresh, BASE, SUBS, LINK, LINK_ANCIEN, MANUELS, JR_KEYS, gardenH } from "./data.js";
 
 function charger() {
   let S = BK.charger();
@@ -14,11 +14,26 @@ function charger() {
   S.tl = S.tl || [];
   S.todo = S.todo || [];
   const EM = {};
-  SEED.forEach((L, h) => L.forEach((n, j) => { EM[n] = EMO[h][j]; }));
+  BASE.forEach(([e, n]) => { EM[n] = e; });
+  const NEW_K = { gratitude: "gr", selflove: "sl" };
   S.acts.forEach((a) => {
     if (!a.e) { a.e = EM[a.n] || "🌼"; ch = true; }
-    if (!a.g) { a.g = TG_BY[a.n] || "generique"; ch = true; }
-    if (LINK[a.n] && a.k !== LINK[a.n]) { a.k = LINK[a.n]; ch = true; }
+    /* onglet lié : anciens codes (gratitude, selflove) → codes des onglets */
+    const k = LINK[a.n] || LINK_ANCIEN[a.n] || NEW_K[a.k] || (a.k && a.k !== "x" ? a.k : undefined);
+    if (k && a.k !== k) { a.k = k; ch = true; }
+    /* balise : les anciennes balises (14 thèmes) deviennent balise + sous-balise */
+    const OK = ["base", "manuel", "sport", "animaux", "onglet"];
+    if (!OK.includes(a.g)) {
+      const sub = SUBS.find((x) => x.k === a.g);
+      if (sub) { a.g = sub.cat; a.sg = sub.k; } else a.g = "base";
+      ch = true;
+    }
+    if (a.k && a.g !== "onglet") { a.g = "onglet"; ch = true; }
+    if (!a.k && MANUELS.includes(a.n) && a.g === "base") { a.g = "manuel"; ch = true; }
+  });
+  /* activités ajoutées après coup à la base de départ */
+  BASE.filter((b) => b[3] === "floreal").forEach(([e, n, h, k]) => {
+    if (!S.acts.some((a) => a.n === n)) { S.acts.push({ id: S.next++, n, h: h.slice(), s: 0, e, g: "onglet", k }); ch = true; }
   });
   if (!Array.isArray(S.garden)) {
     S.garden = [];
@@ -28,6 +43,8 @@ function charger() {
   if (typeof S.sun !== "number") { S.sun = S.garden.length; ch = true; }
   if (!Array.isArray(S.gr)) { S.gr = []; ch = true; }
   if (!Array.isArray(S.sl)) { S.sl = []; ch = true; }
+  if (!S.jr || typeof S.jr !== "object") { S.jr = {}; ch = true; }
+  JR_KEYS.forEach((k) => { if (k !== "gr" && k !== "sl" && !Array.isArray(S.jr[k])) { S.jr[k] = []; ch = true; } });
   if (ch) BK.sauvegarder(S);
   return S;
 }
@@ -48,6 +65,10 @@ function addFlowerTo(S, a, when) {
 }
 
 export const S = charger();
+
+/* Pages d'un journal : gr et sl ont leurs propres listes, les autres sont dans S.jr */
+export const pagesDe = (k) => (k === "gr" ? S.gr : k === "sl" ? S.sl : S.jr[k]);
+export const definirPages = (k, l) => { if (k === "gr") S.gr = l; else if (k === "sl") S.sl = l; else S.jr[k] = l; };
 export const addFlower = (a, when) => addFlowerTo(S, a, when);
 
 let version = 0;

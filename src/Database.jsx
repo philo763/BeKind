@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { EL, HN, SUGG, TAGS, WLOIS, WSPORT, emo, firstEmoji } from "./data.js";
+import { EL, HN, SUBS, SUGG, emo, firstEmoji } from "./data.js";
 import { S, commit } from "./store.js";
-import { Chip, Dots, TagOptions, Tick } from "./ui.jsx";
+import { Chip, Dots, Tick } from "./ui.jsx";
 
 /* ---------- sélecteur d'emoji ---------- */
 function Picker({ onPick }) {
@@ -23,47 +23,37 @@ function Picker({ onPick }) {
 }
 
 /* ---------- assistant « suggestions d'ajout d'activités » ---------- */
+const SPORTS = ["yoga", "muscu", "course", "marche", "velo", "danse"];
+
 function Wizard({ close, onAdded }) {
   const [w, setW] = useState(() => {
     const tg = (S.prof && S.prof.tags) || [];
-    const ans = {};
-    if (S.prof) { ans.chien = tg.includes("chien") ? 1 : 0; ans.chat = tg.includes("chat") ? 1 : 0; }
-    return { step: 0, tg: tg.slice(), off: {}, ans };
+    return { step: 0, tg: tg.slice(), off: {}, none: !!S.prof && !tg.includes("chien") && !tg.includes("chat") };
   });
-  const upd = (fn) => setW((o) => { const n = { ...o, tg: o.tg.slice(), off: { ...o.off }, ans: { ...o.ans } }; fn(n); return n; });
+  const upd = (fn) => setW((o) => { const n = { ...o, tg: o.tg.slice(), off: { ...o.off } }; fn(n); return n; });
   const has = (k) => w.tg.includes(k);
   const toggle = (n, k) => { const i = n.tg.indexOf(k); if (i > -1) n.tg.splice(i, 1); else n.tg.push(k); };
   const cands = SUGG.map((s, i) => ({ s, i })).filter((o) => {
-    const g = o.s[0];
-    if (g !== "generique" && !w.tg.includes(g)) return false;
+    if (!w.tg.includes(o.s[0])) return false;
     const nm = o.s[2].toLowerCase();
     return !S.acts.some((a) => a.n.toLowerCase() === nm);
   });
   const chosen = cands.filter((o) => !w.off[o.i]);
   const add = () => {
-    chosen.forEach((o) => { const s = o.s; S.acts.push({ id: S.next++, n: s[2], h: s[3].slice(), s: 0, e: s[1], g: s[0] }); });
+    chosen.forEach((o) => { const s = o.s; S.acts.push({ id: S.next++, n: s[2], h: s[3].slice(), s: 0, e: s[1], g: SUBS.find((x) => x.k === s[0]).cat, sg: s[0] }); });
     S.prof = { tags: w.tg.slice() }; commit();
     onAdded(chosen.length);
   };
   const st = w.step;
   const head = (n, emoji, q) => (
-    <><p className="kicker">Question {n} sur 4</p><div className="bigemo" aria-hidden="true">{emoji}</div><h2>{q}</h2></>
-  );
-  const yn = (tag, emoji, q, n) => (
-    <>{head(n, emoji, q)}
-      <div className="opts">
-        {[["Oui", 1], ["Non", 0]].map(([l, v]) => (
-          <button key={l} type="button" className="opt" aria-pressed={w.ans[tag] === v ? "true" : "false"}
-            onClick={() => upd((o) => { o.ans[tag] = v; const i = o.tg.indexOf(tag); if (v) { if (i < 0) o.tg.push(tag); } else if (i > -1) o.tg.splice(i, 1); o.step++; })}>{l}</button>
-        ))}
-      </div></>
+    <><p className="kicker">Question {n} sur 2</p><div className="bigemo" aria-hidden="true">{emoji}</div><h2>{q}</h2></>
   );
   const multi = (list, emoji, q, n, sub, btn) => (
     <>{head(n, emoji, q)}<p className="mu">{sub}</p>
       <div className="opts">
         {list.map((o) => (
-          <button key={o[0]} type="button" className="opt" aria-pressed={has(o[0]) ? "true" : "false"}
-            onClick={() => upd((x) => toggle(x, o[0]))}>{o[2] + " " + o[1]}</button>
+          <button key={o.k} type="button" className="opt" aria-pressed={has(o.k) ? "true" : "false"}
+            onClick={() => upd((x) => toggle(x, o.k))}>{o.e + " " + o.l}</button>
         ))}
       </div>
       <button type="button" className="main" onClick={() => upd((o) => { o.step++; })}>{btn}</button></>
@@ -74,11 +64,23 @@ function Wizard({ close, onAdded }) {
         {st > 0 ? <button type="button" className="reset sm" onClick={() => upd((o) => { o.step--; })}>‹ Retour</button> : <span />}
         <button type="button" className="reset sm" onClick={close}>Fermer</button>
       </div>
-      {st === 0 && yn("chien", "🐶", "Tu as un chien ?", 1)}
-      {st === 1 && yn("chat", "🐱", "Tu as un chat ?", 2)}
-      {st === 2 && multi(WSPORT, "🏅", "Quels sports aimes-tu pratiquer ?", 3, "Choisis-en autant que tu veux, ou aucun.", "Suivant")}
-      {st === 3 && multi(WLOIS, "✨", "Qu’est-ce qui te plaît à côté ?", 4, "Là aussi, tu peux en choisir plusieurs.", "Voir mes suggestions")}
-      {st > 3 && (
+      {st === 0 && (
+        <>
+          {head(1, "🐾", "Quel animal as-tu ?")}
+          <p className="mu">Chien, chat, les deux, ou aucun.</p>
+          <div className="opts">
+            {SUBS.filter((s) => s.cat === "animaux").map((o) => (
+              <button key={o.k} type="button" className="opt" aria-pressed={has(o.k) ? "true" : "false"}
+                onClick={() => upd((x) => { toggle(x, o.k); x.none = false; })}>{o.e + " " + o.l}</button>
+            ))}
+            <button type="button" className="opt" aria-pressed={w.none ? "true" : "false"}
+              onClick={() => upd((x) => { x.tg = x.tg.filter((k) => k !== "chien" && k !== "chat"); x.none = true; })}>Aucun</button>
+          </div>
+          <button type="button" className="main" onClick={() => upd((o) => { o.step++; })}>Suivant</button>
+        </>
+      )}
+      {st === 1 && multi(SPORTS.map((k) => SUBS.find((s) => s.k === k)), "🏅", "Quel sport aimes-tu ?", 2, "Choisis-en autant que tu veux, ou aucun.", "Voir mes suggestions")}
+      {st > 1 && (
         <>
           <p className="kicker">Mes suggestions</p><h2>Voici des idées pour toi</h2>
           {!cands.length ? (
@@ -88,12 +90,12 @@ function Wizard({ close, onAdded }) {
             <>
               <p className="mu">Décoche celles qui ne te plaisent pas, puis ajoute le reste à ta base.</p>
               <div style={{ textAlign: "left" }}>
-                {TAGS.map((g) => {
+                {SUBS.map((g) => {
                   const it = cands.filter((o) => o.s[0] === g.k);
                   if (!it.length) return null;
                   return (
                     <div key={g.k}>
-                      <div className="sgh">{g.e + " " + g.l}</div>
+                      <div className="sgh">{g.e + " " + g.l + (g.cat === "sport" ? " · sport" : "")}</div>
                       {it.map((o) => (
                         <label key={o.i}>
                           <input type="checkbox" checked={!w.off[o.i]}
@@ -130,8 +132,7 @@ export default function Database() {
   const [name, setName] = useState("");
   const [newH, setNewH] = useState([]);
   const [newE, setNewE] = useState("🌼");
-  const [newT, setNewT] = useState("generique");
-
+  
   if (wiz) return <Wizard close={() => setWiz(false)} onAdded={(n) => {
     setOk(n ? n + (n > 1 ? " activités ajoutées" : " activité ajoutée") + " à ta base 🌸" : ""); setWiz(false);
   }} />;
@@ -146,8 +147,8 @@ export default function Database() {
     const nm = name.trim();
     if (!nm) { setMsg("Écris d’abord le nom de l’activité."); return; }
     if (!newH.length) { setMsg("Choisis au moins une couleur."); return; }
-    S.acts.push({ id: S.next++, n: nm, h: newH.slice().sort(), s: 0, e: newE, g: newT });
-    setName(""); setNewH([]); setNewE("🌼"); setNewT("generique"); setPickFor(null); setMsg(""); commit();
+    S.acts.push({ id: S.next++, n: nm, h: newH.slice().sort(), s: 0, e: newE, g: "manuel" });
+    setName(""); setNewH([]); setNewE("🌼"); setPickFor(null); setMsg(""); commit();
   };
   const chipToggle = (a, h) => {
     const i = a.h.indexOf(h);
@@ -202,7 +203,7 @@ export default function Database() {
                     <div className="aw">{a.n}
                       <div className="chips">
                         {[0, 1, 2, 3].map((k) => <Chip key={k} h={k} on={a.h.includes(k)} onClick={() => chipToggle(a, k)} />)}
-                        <select className="tagsel" aria-label="Balise de l’activité" value={a.g} onChange={(e) => { a.g = e.target.value; commit(); }}><TagOptions /></select>
+                        
                       </div>
                     </div>
                   </div>
@@ -227,8 +228,6 @@ export default function Database() {
             onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} />
         </div>
         {pickFor === "new" && <Picker onPick={setEmoji} />}
-        <div className="addrow"><span className="mu">Balise :</span>
-          <select className="tagsel" aria-label="Balise de la nouvelle activité" value={newT} onChange={(e) => setNewT(e.target.value)}><TagOptions /></select></div>
         <div className="addrow"><span className="mu">Ses hormones :</span>
           <div className="chips">{[0, 1, 2, 3].map((q) => <Chip key={q} h={q} on={newH.includes(q)} onClick={() => toggleIn(newH, setNewH, q)} />)}</div>
           <button type="button" className="reset sm" onClick={add}>Ajouter</button></div>

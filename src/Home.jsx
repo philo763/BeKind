@@ -1,5 +1,10 @@
-import { CN, emo, LINK } from "./data.js";
+import { CN, FLOREAL_URL, HABIBITS_URL, JR, LIEN_BTN, emo } from "./data.js";
 import { S, addFlower, commit } from "./store.js";
+import { LinesInput, hasDraft, msgManque, saveDraft } from "./Journal.jsx";
+import Todo from "./Todo.jsx";
+import { useState } from "react";
+
+const EXTERNES = { habibits: HABIBITS_URL, floreal: FLOREAL_URL };
 
 /* ---------- logique de suggestion (état de session géré par App) ---------- */
 export const newSess = (msg) => ({ ph: "idle", excl: [], seen: [], cur: null, hor: null, tied: [], msg: msg || "" });
@@ -19,22 +24,30 @@ export function propose(s, h) {
   const mx = Math.max(...p.map((a) => a.s));
   const top = p.filter((a) => a.s === mx);
   const a = top[Math.floor(Math.random() * top.length)];
-  s.cur = a; s.hor = h; s.seen.push(a.id); s.ph = "propose";
+  s.cur = a; s.hor = h; s.seen.push(a.id); s.ph = "propose"; s.err = "";
+  s.todoBase = a.k === "todo" ? S.todo.filter((t) => t.d).map((t) => t.id) : [];
 }
 
-export default function Home({ sess, setSess, goJournal }) {
+export default function Home({ sess, setSess }) {
   const c = sess.cur;
+  const [, setTick] = useState(0);
   /* on mute une copie de la session puis on la republie */
   const act = (fn) => { const s = { ...sess, excl: sess.excl.slice(), seen: sess.seen.slice() }; fn(s); setSess(s); };
-  const link = c && LINK[c.n];
+  const link = c && c.k;
 
   if (sess.ph === "idle") return (
-    <section className="card" style={{ background: "var(--c0)" }}>
-      {sess.msg && <p className="big">{sess.msg}</p>}
-      <h2>Un petit coup de mou ?</h2>
-      <p>Je te propose une activité pour te remettre d’aplomb.</p>
-      <button type="button" className="main" onClick={() => act((s) => { Object.assign(s, newSess()); decide(s); })}>Trouver une activité</button>
-    </section>
+    <>
+      {sess.msg && (
+        <section className="card" style={{ background: "var(--c1)" }}>
+          <p className="big" style={{ margin: 0 }}>{sess.msg}</p>
+        </section>
+      )}
+      <section className="card" style={{ background: "var(--c0)" }}>
+        <h2>Un petit coup de mou ?</h2>
+        <p>Je te propose une activité pour te remettre d’aplomb.</p>
+        <button type="button" className="main" onClick={() => act((s) => { Object.assign(s, newSess()); decide(s); })}>Trouver une activité</button>
+      </section>
+    </>
   );
   if (sess.ph === "choose") return (
     <section className="card" style={{ background: "var(--c4)" }}>
@@ -48,22 +61,44 @@ export default function Home({ sess, setSess, goJournal }) {
       </div>
     </section>
   );
-  if (sess.ph === "propose") return (
-    <section className="card" style={{ background: `var(--h${sess.hor})` }}>
-      <div className="bigemo" aria-hidden="true">{emo(c)}</div>
-      <p className="kicker">Ma suggestion</p>
-      <p className="act">{c.n}</p>
-      <div className="answers">
-        <button type="button" className="main" autoFocus onClick={() => act((s) => {
-          c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
-          S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
-          commit(); s.ph = "yes";
-        })}>Oui, je fais ça</button>
-        <button type="button" className="reset" onClick={() => act((s) => propose(s, s.hor))}>Mouais…</button>
-        <button type="button" className="reset" onClick={() => act((s) => { s.excl.push(s.hor); decide(s); })}>Pas du tout envie</button>
-      </div>
-    </section>
-  );
+  if (sess.ph === "propose") {
+    const saisi = link === "todo" ? S.todo.some((t) => t.d && !(sess.todoBase || []).includes(t.id)) : link && JR[link] ? hasDraft(link) : false;
+    const valider = () => act((s) => {
+      if (link && JR[link] && !saveDraft(link)) { s.err = msgManque(link); return; }
+      if (link === "todo" && !S.todo.some((t) => t.d && !(s.todoBase || []).includes(t.id))) { s.err = "Coche au moins une tâche faite pour valider ton activité."; return; }
+      c.s++; c.h.forEach((k) => { S.hs[k]++; }); S.sun++; addFlower(c);
+      S.tl.push({ id: S.next++, t: Date.now(), n: c.n, e: emo(c), h: c.h.slice() });
+      commit();
+      if (link) { Object.assign(s, newSess("Bravo, une activité de plus pour prendre soin de toi 🌼")); s.err = ""; } else s.ph = "yes";
+    });
+    return (
+      <section className="card" style={{ background: `var(--h${sess.hor})` }}>
+        <div className="bigemo" aria-hidden="true">{emo(c)}</div>
+        <p className="kicker">Ma suggestion</p>
+        <p className="act">{c.n}</p>
+        {link && JR[link] && (
+          <div className="page embed">
+            <LinesInput k={link} onEnter={valider} onChange={() => setTick((x) => x + 1)} />
+            {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}
+          </div>
+        )}
+        {link === "todo" && (
+          <div className="embed"><Todo compact />
+            {sess.err && <p className="banner" role="alert" style={{ margin: "6px 0 0" }}>{sess.err}</p>}</div>
+        )}
+        {EXTERNES[link] && (
+          <div style={{ marginBottom: 14 }}>
+            <a className="reset" href={EXTERNES[link]} target="_blank" rel="noreferrer">{LIEN_BTN[link]}</a>
+          </div>
+        )}
+        <div className="answers">
+          <button type="button" className="main" onClick={valider}>{saisi ? "Valider ma saisie" : "Oui, je fais ça"}</button>
+          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; propose(s, s.hor); })}>Mouais…</button>
+          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; s.excl.push(s.hor); decide(s); })}>Pas du tout envie</button>
+        </div>
+      </section>
+    );
+  }
   if (sess.ph === "yes") return (
     <section className="card" style={{ background: `var(--h${sess.hor})` }}>
       <div className="bigemo" aria-hidden="true">{emo(c)}</div>
@@ -71,8 +106,6 @@ export default function Home({ sess, setSess, goJournal }) {
       <p className="act">{c.n}</p>
       <p>Vas-y, tu vas te faire du bien 🌼</p>
       <p className="mu" style={{ fontSize: 14, marginTop: -6 }}>+1 ☀️ et une nouvelle marguerite dans ton jardin</p>
-      {link === "gratitude" && <div style={{ marginBottom: 14 }}><button type="button" className="reset" onClick={() => goJournal("gr")}>🙏 Ouvrir mon journal de gratitude</button></div>}
-      {link === "selflove" && <div style={{ marginBottom: 14 }}><button type="button" className="reset" onClick={() => goJournal("sl")}>💖 Ouvrir mon self love</button></div>}
       <button type="button" className="main" autoFocus onClick={() => setSess(newSess("Bravo, une activité de plus pour prendre soin de toi 🌼"))}>C’est fait ✓</button>
     </section>
   );
