@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { FLOREAL_URL, HABIBITS_URL } from "./data.js";
 
-const ICONE_FLOREAL = "https://splendorous-axolotl-8382a7.netlify.app/logo.png";
-
-function Icone({ src, repli }) {
-  const [ko, setKo] = useState(false);
-  return ko
-    ? <span className="appico repli" aria-hidden="true">{repli}</span>
-    : <img className="appico" src={src} alt="" width="52" height="52" onError={() => setKo(true)} />;
-}
+/* Icône de Habibits : fichier de l'appli. Floreal : carré blanc en attendant son logo. */
+const Icone = ({ src }) => (src
+  ? <img className="appico" src={src} alt="" width="52" height="52" />
+  : <span className="appico blanc" aria-hidden="true" />);
 
 export default function Apropos() {
   return (
@@ -24,13 +19,13 @@ export default function Apropos() {
         <ul className="apps">
           <li>
             <a href={HABIBITS_URL} target="_blank" rel="noreferrer">
-              <Icone src={import.meta.env.BASE_URL + "habibits-icone.png"} repli="🎯" />
+              <Icone src={import.meta.env.BASE_URL + "habibits-icone.png"} />
               <span><strong>Habibits</strong><br /><span className="mu">Des petits défis pour ancrer des habitudes.</span></span>
             </a>
           </li>
           <li>
             <a href={FLOREAL_URL} target="_blank" rel="noreferrer">
-              <Icone src={ICONE_FLOREAL} repli="🌸" />
+              <Icone />
               <span><strong>Floreal Fitness Tracker</strong><br /><span className="mu">Suivre mes séances de sport.</span></span>
             </a>
           </li>
