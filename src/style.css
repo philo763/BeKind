@@ -36,7 +36,6 @@ h2 span:nth-child(2){flex:1;min-width:0}
 .big{font-family:"Sniglet","Nunito",sans-serif;font-size:19px}
 .answers{display:flex;flex-direction:column;gap:10px;align-items:center}
 .answers .reset{min-width:210px}
-.pts{display:inline-block;font-family:"Nunito",sans-serif;font-size:12px;font-weight:800;background:var(--box);border-radius:99px;padding:1px 8px;margin-left:4px;vertical-align:1px}
 .answers .jamais{border-style:dashed;font-size:14px;color:var(--muted)}
 .bubbles{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:18px 0 8px}
 .bub{width:88px;height:88px;border-radius:50%;border:5px solid var(--box);cursor:pointer;box-shadow:0 4px 10px rgba(90,74,92,.18);transition:transform .15s}
@@ -255,3 +254,5 @@ tr.off .emo,tr.off .chips,tr.off .score{opacity:.45}
 .retour{display:flex;justify-content:center;margin:-4px 0 16px}
 .reac{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px}
 .reac .mu{font-size:13px;line-height:1.3;flex:1;min-width:140px}
+.illus{display:block;width:100%;aspect-ratio:5/4;object-fit:cover;border-radius:18px;margin:0 0 12px;box-shadow:0 3px 10px rgba(90,74,92,.15)}
+.illus.detoure{aspect-ratio:auto;width:auto;max-width:100%;height:230px;margin:0 auto 12px;object-fit:contain;border-radius:0;box-shadow:none;filter:drop-shadow(0 6px 8px rgba(90,74,92,.22))}

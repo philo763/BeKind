@@ -3,6 +3,7 @@ import { S, addFlower, commit } from "./store.js";
 import { LinesInput, hasDraft, msgManque, saveDraft } from "./Journal.jsx";
 import Todo from "./Todo.jsx";
 import Cerveau from "./Cerveau.jsx";
+import { illustration } from "./illustrations.js";
 import { useState } from "react";
 
 const EXTERNES = { habibits: HABIBITS_URL, floreal: FLOREAL_URL };
@@ -42,6 +43,13 @@ export function propose(s, h) {
   s.todoBase = a.k === "todo" ? S.todo.filter((t) => t.d).map((t) => t.id) : [];
 }
 
+/* Illustration de l'activité si elle en a une, sinon son emoji */
+function Visuel({ a }) {
+  const il = illustration(a);
+  if (!il) return <div className="bigemo" aria-hidden="true">{emo(a)}</div>;
+  return <img className={"illus" + (il.detoure ? " detoure" : "")} src={il.src} alt="" />;
+}
+
 export default function Home({ sess, setSess }) {
   const c = sess.cur;
   const [, setTick] = useState(0);
@@ -77,7 +85,7 @@ export default function Home({ sess, setSess }) {
     return (
       <>
       <section className="card" style={{ background: `var(--h${sess.hor})` }}>
-        <div className="bigemo" aria-hidden="true">{emo(c)}</div>
+        <Visuel a={c} />
         <p className="act">{c.n}</p>
         {link && JR[link] && (
           <div className="page embed">
@@ -95,10 +103,9 @@ export default function Home({ sess, setSess }) {
           </div>
         )}
         <div className="answers">
-          {/* Chaque réponse indique ce qu'elle change au score de l'activité */}
-          <button type="button" className="main" onClick={valider}>{saisi ? "Valider ma saisie" : "Oui, je fais ça"} <span className="pts">+1</span></button>
-          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; propose(s, s.hor); })}>Mouais… <span className="pts">0</span></button>
-          <button type="button" className="reset" onClick={() => { c.s -= 1; commit(); act((s) => { s.err = ""; s.excl.push(s.hor); decide(s); }); }}>Pas du tout envie <span className="pts">−1</span></button>
+          <button type="button" className="main" onClick={valider}>{saisi ? "Valider ma saisie" : "Oui, je fais ça"}</button>
+          <button type="button" className="reset" onClick={() => act((s) => { s.err = ""; propose(s, s.hor); })}>Mouais…</button>
+          <button type="button" className="reset" onClick={() => { c.s -= 1; commit(); act((s) => { s.err = ""; s.excl.push(s.hor); decide(s); }); }}>Pas du tout envie</button>
           <button type="button" className="reset jamais" onClick={() => { c.off = true; commit(); act((s) => { s.err = ""; propose(s, s.hor); }); }}>Je ne veux plus cette suggestion</button>
         </div>
       </section>
@@ -111,7 +118,7 @@ export default function Home({ sess, setSess }) {
   }
   if (sess.ph === "yes") return (
     <section className="card" style={{ background: `var(--h${sess.hor})` }}>
-      <div className="bigemo" aria-hidden="true">{emo(c)}</div>
+      <Visuel a={c} />
       <p className="kicker">C’est parti !</p>
       <p className="act">{c.n}</p>
       <p>Vas-y, tu vas te faire du bien 🌼</p>
