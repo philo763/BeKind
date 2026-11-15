@@ -3,13 +3,17 @@
 An app to hack your brain into making your body feel good.
 
 Be Kind propose une activité qui fait du bien selon les quatre hormones du bonheur
-(dopamine, ocytocine, sérotonine, endorphines). On répond « Oui, je fais ça »,
-« Mouais… » ou « Pas du tout envie », et l'appli apprend ce qui marche pour toi.
+(dopamine, ocytocine, sérotonine, endorphines). On choisit d'abord une hormone dans un
+cerveau-camembert (la part de chaque hormone dans ce qu'on a déjà fait), puis on répond
+« Oui, je fais ça », « Mouais… » ou « Pas du tout envie », et l'appli apprend ce qui marche pour toi.
 
 ## Ce que contient l'appli
 
-- **Hacker mon cerveau** : propose une activité (scores par activité et par hormone).
-  Oui : +1, Mouais : 0, Pas du tout envie : −1, Je ne veux plus cette suggestion : −10.
+- **Hacker mon cerveau** : choix de l'hormone dans le cerveau, puis une activité, illustrée
+  quand elle a une image (`src/illustrations.js`). Scores par activité et par hormone, non
+  affichés sur les boutons : Oui +1, Mouais 0 (même hormone), Pas du tout envie −1 (autre hormone).
+  « Je ne veux plus cette suggestion » désactive l'activité. Si on refuse toute la base, un message
+  le dit. « Revenir au cerveau » relance le tour sans toucher aux scores.
 - **Mon jardin** : une marguerite par activité validée, déplaçable ; les soleils
   gagnés s'échangent dans la boutique contre une danse.
 - **Journaling** : carnets (gratitude, self love…), ligne du temps et to do list.
