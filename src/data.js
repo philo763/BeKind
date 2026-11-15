@@ -71,6 +71,7 @@ export const BASE=[
 ["💬", "Envoyer un compliment sincère à quelqu’un", [1]],
 ["🧦", "Mettre des chaussettes bien douillettes", [1]],
 ["😊", "Remercier quelqu’un", [1]],
+["🛁", "Donner un bain à mon chien", [1]],
 ["🌬️", "Faire de la cohérence cardiaque", [2]],
 ["🎶", "Écouter de la musique calme les yeux fermés", [2]],
 ["🙆", "Faire des étirements lents", [2]],
