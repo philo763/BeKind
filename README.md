@@ -39,9 +39,17 @@ puis aller sur http://localhost:8000.
 
 ## Publier avec GitHub Pages
 
-1. Sur GitHub : **Settings → Pages**.
-2. Source : **Deploy from a branch**, branche `main`, dossier `/ (root)`.
-3. Enregistrer : le site apparaît à l'adresse `https://<pseudo>.github.io/BeKind/`.
+La publication est automatique à chaque push sur `main`, grâce au workflow
+`.github/workflows/deploy.yml` (pas de build : il copie `index.html`, `style.css`,
+`app.js` et `donnees.js`, puis les déploie).
+
+À faire une seule fois sur GitHub : **Settings → Pages → Build and deployment →
+Source : GitHub Actions**. Le site apparaît ensuite à l'adresse
+`https://<pseudo>.github.io/BeKind/` ; l'avancement se suit dans l'onglet **Actions**,
+et on peut aussi relancer le déploiement à la main (« Run workflow »).
+
+Si tu ajoutes un nouveau fichier à l'appli (une image, un second script…), pense à
+l'ajouter à la ligne `cp` du workflow, sinon il ne sera pas publié.
 
 ## Stockage et sauvegardes
 
