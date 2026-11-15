@@ -2,7 +2,7 @@
    compteur de version pour que React sache quand redessiner. */
 import { useSyncExternalStore } from "react";
 import { BK } from "./storage.js";
-import { fresh, BASE, FIXE, SUBS, LINK, LINK_ANCIEN, MANUELS, JR_KEYS, gardenH } from "./data.js";
+import { fresh, BASE, FIXE, SUBS, LINK, LINK_ANCIEN, RETIREES, JR_KEYS, gardenH } from "./data.js";
 
 function charger() {
   let S = BK.charger();
@@ -13,11 +13,24 @@ function charger() {
   }
   S.tl = S.tl || [];
   S.todo = S.todo || [];
+  /* activités renommées (une seule ligne par entrée) : on garde l'activité et son score */
+  const RENOMMEES = { "Faire une liste de 3 gratitudes": "Écrire une gratitude", "Écrire 3 choses que j’apprécie chez moi": "Écrire un mot doux pour moi" };
+  S.acts.forEach((a) => { if (RENOMMEES[a.n]) { a.n = RENOMMEES[a.n]; ch = true; } });
+  /* si le nouveau nom existait déjà (ajouté avant le renommage), on garde l'activité au meilleur score */
+  Object.values(RENOMMEES).forEach((n) => {
+    const memes = S.acts.filter((a) => a.n === n);
+    if (memes.length < 2) return;
+    const garde = memes.reduce((x, y) => (y.s > x.s ? y : x));
+    S.acts = S.acts.filter((a) => a.n !== n || a === garde);
+    ch = true;
+  });
   const EM = {};
   BASE.forEach(([e, n]) => { EM[n] = e; });
   const NEW_K = { gratitude: "gr", selflove: "sl" };
   S.acts.forEach((a) => {
     if (!a.e) { a.e = EM[a.n] || "🌼"; ch = true; }
+    /* le carnet « Câlins » n'existe plus : l'activité câlin redevient une activité simple */
+    if (a.k === "cal") { delete a.k; a.g = "base"; ch = true; }
     /* onglet lié : anciens codes (gratitude, selflove) → codes des onglets */
     const k = LINK[a.n] || LINK_ANCIEN[a.n] || NEW_K[a.k] || (a.k && a.k !== "x" ? a.k : undefined);
     if (k && a.k !== k) { a.k = k; ch = true; }
@@ -29,8 +42,11 @@ function charger() {
       ch = true;
     }
     if (a.k && a.g !== "onglet") { a.g = "onglet"; ch = true; }
-    if (!a.k && MANUELS.includes(a.n) && a.g === "base") { a.g = "manuel"; ch = true; }
   });
+  /* activités perso retirées : on garde un profil générique */
+  const avant = S.acts.length;
+  S.acts = S.acts.filter((a) => !RETIREES.includes(a.n));
+  if (S.acts.length !== avant) ch = true;
   /* hormones ajoutées après coup à une activité de départ (les activités ne se modifient plus dans l'appli) */
   const AJOUTS_H = { "me masser les mains ou les épaules avec une crème": 3 };
   S.acts.forEach((a) => {
@@ -49,12 +65,26 @@ function charger() {
     ch = true;
   }
   if (typeof S.sun !== "number") { S.sun = S.garden.length; ch = true; }
+  /* le jardin devient le jardin de gratitude : une fleur et un soleil par gratitude écrite */
+  if (!S.prof || !S.prof.jardinGr) {
+    S.garden = [];
+    (S.gr || []).slice().sort((x, y) => x.t - y.t).forEach((p) => p.items.forEach((txt) => addFlowerTo(S, { n: txt, e: "🙏", h: teintesFleur() }, p.t)));
+    S.sun = S.garden.length;
+    S.prof = { ...(S.prof || {}), jardinGr: true };
+    ch = true;
+  }
   if (!Array.isArray(S.gr)) { S.gr = []; ch = true; }
   if (!Array.isArray(S.sl)) { S.sl = []; ch = true; }
   if (!S.jr || typeof S.jr !== "object") { S.jr = {}; ch = true; }
   JR_KEYS.forEach((k) => { if (k !== "gr" && k !== "sl" && !Array.isArray(S.jr[k])) { S.jr[k] = []; ch = true; } });
   if (ch) BK.sauvegarder(S);
   return S;
+}
+
+/* couleurs des pétales d'une fleur de gratitude : une ou deux hormones au hasard */
+function teintesFleur() {
+  const a = Math.floor(Math.random() * 4), b = Math.floor(Math.random() * 4);
+  return a === b ? [a] : [a, b].sort();
 }
 
 function addFlowerTo(S, a, when) {
@@ -78,6 +108,8 @@ export const S = charger();
 export const pagesDe = (k) => (k === "gr" ? S.gr : k === "sl" ? S.sl : S.jr[k]);
 export const definirPages = (k, l) => { if (k === "gr") S.gr = l; else if (k === "sl") S.sl = l; else S.jr[k] = l; };
 export const addFlower = (a, when) => addFlowerTo(S, a, when);
+/* Une gratitude écrite : une fleur pousse et un soleil est gagné */
+export function fleurDeGratitude(txt) { addFlowerTo(S, { n: txt, e: "🙏", h: teintesFleur() }); S.sun++; }
 
 let version = 0;
 const abonnes = new Set();

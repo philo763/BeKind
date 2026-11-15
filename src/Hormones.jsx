@@ -38,7 +38,7 @@ const HORMONES = [
         "Choisir mes 10 plus belles photos et les imprimer", "Cacher des friandises dans la maison pour mon chien", "Apprendre un nouveau tour à mon chien", "Jouer avec mon chat avec une plume ou une ficelle", "Prendre mon chat en photo dans sa plus belle pose", "Danser sur la chanson de mon adolescence",
       ]],
       ["🤝", "Favorise la confiance et l’empathie", [
-        "Écrire un petit mot gentil à quelqu’un", "Remercier ou féliciter quelqu’un", "Écrire 3 choses que j’apprécie chez moi",
+        "Écrire un petit mot gentil à quelqu’un", "Remercier ou féliciter quelqu’un", "Écrire un mot doux pour moi",
         "Écrire une lettre à moi-même pour dans un an", "Envoyer un compliment sincère à quelqu’un",
       ]],
       ["🛡️", "Apaise le stress, donne un sentiment de sécurité", [
@@ -61,7 +61,7 @@ const HORMONES = [
         "Composer une playlist qui me fait du bien", "Prendre en photo quelque chose de beau autour de moi", "Photographier trois belles choses dehors", "Écrire ce que je ressens, sans me juger", "Courir ou trottiner avec mon chien", "Faire une longue balade au grand air avec mon chien", "Faire un footing tranquille dans un parc", "Faire une balade à vélo tranquille", "Faire un tour à vélo au coucher du soleil", "Marcher jusqu’à un endroit avec une jolie vue", "Faire une marche rapide en musique",
       ]],
       ["🌟", "Nourrit la confiance en soi et la fierté", [
-        "Faire une liste de 3 gratitudes", "Noter dans un carnet ce qui me pèse et ce qui va bien",
+        "Écrire une gratitude", "Noter dans un carnet ce qui me pèse et ce qui va bien",
         "Écrire quelques lignes libres ou un petit poème", "Écrire une lettre à moi-même pour dans un an", "Choisir un mot pour guider ma journée",
       ]],
       ["🌙", "Aide à réguler le sommeil et l’appétit", [

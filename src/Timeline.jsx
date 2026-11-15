@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HN, addDays, pad, sod } from "./data.js";
+import { HN, JR, addDays, pad, sod } from "./data.js";
 import { S, commit } from "./store.js";
 import { cap } from "./ui.jsx";
 
@@ -10,6 +10,12 @@ const dotBg = (hs) => {
 };
 const f = (d, o) => d.toLocaleDateString("fr-FR", o);
 
+/* Activités faites qui n'ont pas déjà leur page dans le carnet (carnets, to do list, pellicule) */
+export function entreesLigne() {
+  const dansCarnet = new Set(S.acts.filter((a) => a.k && (a.k === "todo" || JR[a.k])).map((a) => a.n));
+  return S.tl.filter((v) => !dansCarnet.has(v.n));
+}
+
 export default function Timeline() {
   const [view, setView] = useState("day");
   const [anchor, setAnchor] = useState(() => sod(new Date()));
@@ -18,7 +24,7 @@ export default function Timeline() {
   const H = day ? 768 : 700, ppm = H / (e - s);
   const title = cap(day ? f(anchor, { weekday: "long", day: "numeric", month: "long" })
     : f(s, { day: "numeric", month: "short" }) + " – " + f(anchor, { day: "numeric", month: "short" }));
-  const evs = S.tl.filter((v) => v.t >= +s && v.t < +e).sort((a, b) => a.t - b.t);
+  const evs = entreesLigne().filter((v) => v.t >= +s && v.t < +e).sort((a, b) => a.t - b.t);
 
   const ticks = [];
   if (day) {
