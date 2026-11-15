@@ -115,6 +115,7 @@ export const SUGG=[
 ["danse", "🎶", "Faire une grosse séance de danse", [3]],
 ["chien", "🦴", "Cacher des friandises dans la maison pour mon chien", [1, 0]],
 ["chien", "🪮", "Brosser mon chien tout doucement", [1]],
+["chien", "🛁", "Donner un bain à mon chien", [1]],
 ["chien", "🎓", "Apprendre un nouveau tour à mon chien", [0, 1]],
 ["chien", "🐕‍🦺", "Courir ou trottiner avec mon chien", [3, 2]],
 ["chien", "🌲", "Faire une longue balade au grand air avec mon chien", [2]],

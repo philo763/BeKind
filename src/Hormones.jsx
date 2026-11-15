@@ -47,7 +47,7 @@ const HORMONES = [
       ]],
       ["💞", "Libérée par le contact et la tendresse", [
         "Faire un câlin à quelqu’un (20 secondes minimum)", "Faire un câlin à mon chien", "Me masser les mains ou les épaules avec une crème",
-        "Brosser mon chien tout doucement", "Câliner mon chat", "Brosser mon chat",
+        "Brosser mon chien tout doucement", "Donner un bain à mon chien", "Câliner mon chat", "Brosser mon chat",
       ]],
     ],
   },
